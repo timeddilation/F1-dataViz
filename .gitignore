@@ -1,0 +1,11 @@
+# Ignore personal data
+backupOriginalData/
+
+# Ignore test files
+tests.R
+
+# Ignore R generated files
+.Rhisotry
+
+# Ignore newer data directory
+newerData/
