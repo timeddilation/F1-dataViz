@@ -9,6 +9,9 @@ library(png)
 library(grid)
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+watermrk <- readPNG(source = "images/watermark.png")
+watermark <- rasterGrob(watermrk, interpolate = TRUE)
+rm(watermrk)
 
 circuits <- fread("data/circuits.csv")
 drivers <- fread("data/drivers.csv")
