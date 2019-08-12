@@ -99,3 +99,11 @@ getTrackImage <- function(circuitId){
   
   return(returnImage)
 }
+
+convertLapTimeStringToSeconds <- function(lapTimeString){
+  minutes <- as.numeric(stringr::str_extract(lapTimeString, "^[0-9]{1,2}"))
+  seconds <- stringr::str_extract(lapTimeString, ":[0-9]{1,2}\\.[0-9]{1,3}")
+  seconds <- as.double(gsub(":", "", seconds, fixed = TRUE))
+  totalSeconds <- (minutes * 60) + seconds
+  return(totalSeconds)
+}

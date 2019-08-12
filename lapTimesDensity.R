@@ -13,15 +13,21 @@ anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year
 
 racesResults <- results[raceId %in% unique(anaimateLapTimesData[, raceId])]
 racesResults <- merge(racesResults, races[, .(raceId, year)])
-racesResults <- racesResults[, .(fastestLapSpeed = max(fastestLapSpeed), fastestLapTime = min(fastestLapTime)), by = year]
+racesResults[, fastestLapTimeSeconds := convertLapTimeStringToSeconds(fastestLapTime)]
 racesResults[, fastestLapSpeed := as.numeric(fastestLapSpeed)]
+
+# racesResults <- racesResults[!is.na(fastestLapTimeSeconds), .(fastestLapSpeed = max(fastestLapSpeed), fastestLapTime = min(fastestLapTimeSeconds)), by = year]
+
+racesResults <- racesResults[, .(fastestLapSpeed = max(fastestLapSpeed, na.rm = TRUE), fastestLapTime = min(fastestLapTimeSeconds, na.rm = TRUE)), by = year]
+racesResults[, fastestLapSpeed := as.character(fastestLapSpeed)][, fastestLapTime := as.character(fastestLapTime)]
+racesResults[fastestLapSpeed == "-Inf", fastestLapSpeed := "No Data"][fastestLapTime == "Inf", fastestLapTime := "No Data"]
 racesResults[fastestLapTime == "", fastestLapTime := "No Data"]
 racesResults[, raceToolTip := paste("<span style='font-size:18; color:black'>",
                                     "**Fastest Lap:** ", fastestLapTime, 
                                     "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
                                     "</span>",
                                     sep = "")]
-anaimateLapTimesData <- merge(anaimateLapTimesData, racesResults[, .(year, raceToolTip)], by.x = c("year"), by.y = c("year"))
+# anaimateLapTimesData <- merge(anaimateLapTimesData, racesResults[, .(year, raceToolTip)], by.x = c("year"), by.y = c("year"), all.x = TRUE)
 
 # circuitMedianFastestSpeed <- boxplot.stats(racesResults[!is.na(fastestLapSpeed), fastestLapSpeed])$stats[3]
 
@@ -63,7 +69,7 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   enter_fade() + 
   exit_shrink() +
   ease_aes('sine-in-out')
-# ggani
+ggani
 # animate(plot = ggani, nframes = 110, end_pause = 10, ref_frame = 1, fps = 10, duration = 10, detail = 1,
 #         options(gganimate.dev_args = list(width = 960, height = 540)))
 gps <- length(unique(anaimateLapTimesData[, raceId]))
