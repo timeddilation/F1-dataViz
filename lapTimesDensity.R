@@ -11,13 +11,26 @@ allCircuitLapTimes[, seconds := milliseconds / 1000]
 anaimateLapTimesData <- allCircuitLapTimes[seconds <= 180]
 anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year)])
 
+racesResults <- results[raceId %in% unique(anaimateLapTimesData[, raceId])]
+racesResults <- merge(racesResults, races[, .(raceId, year)])
+racesResults <- racesResults[, .(fastestLapSpeed = max(fastestLapSpeed), fastestLapTime = max(fastestLapTime)), by = year]
+racesResults[, fastestLapSpeed := as.numeric(fastestLapSpeed)]
+racesResults[fastestLapTime == "", fastestLapTime := "No Data"]
+racesResults[, raceToolTip := paste("Fastest Lap: ", fastestLapTime, 
+                                    "\nFastest Lap Speed: ", as.character(fastestLapSpeed), 
+                                    sep = "")]
+anaimateLapTimesData <- merge(anaimateLapTimesData, racesResults[, .(year, raceToolTip)], by.x = c("year"), by.y = c("year"))
+
+# circuitMedianFastestSpeed <- boxplot.stats(racesResults[!is.na(fastestLapSpeed), fastestLapSpeed])$stats[3]
+
 circuitBoxPlotStats <- boxplot.stats(anaimateLapTimesData[, seconds])
 vlines <- as.data.table(circuitBoxPlotStats$stats[1:5])
 
 grandPrixName <- anaimateLapTimesData[1, name]
-img <- readPNG(source = "images/brazil.png") # need to setup data for these images
-img2 <- rasterGrob(img, interpolate = TRUE)
-rm(circuitBoxPlotStats, mostRacesCircuitId, racesForCircuit,racesWithTimes, raceCounts, img)
+# img <- readPNG(source = "images/brazil.png") # need to setup data for these images
+# img2 <- rasterGrob(img, interpolate = TRUE)
+img2 <- getTrackImage(mostRacesCircuitId)
+rm(circuitBoxPlotStats, mostRacesCircuitId, racesForCircuit,racesWithTimes, raceCounts)
 
 ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) + 
   geom_density(data = allCircuitLapTimes[seconds <= 180], aes(x = seconds, color = "green", fill = "green", alpha = 0.5),
@@ -28,7 +41,7 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   geom_vline(data = vlines, aes(xintercept = V1, color = "red"), linetype = "dashed") +
   xlim(45,180) +
   ylim(0,0.35) +
-  labs(title = paste(grandPrixName, "{frame_time}")) +
+  labs(title = paste(grandPrixName, "{frame_time}"), label = "testest") +
   xlab("Lap Time (seconds)") +
   ylab("Density") +
   theme_wsj() +
@@ -38,8 +51,12 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   scale_colour_identity(element_blank()) +
   theme(legend.position = c(0.75,0.95), legend.direction = "horizontal",
         axis.title=element_text(size=12)) +
-  annotation_custom(img2, xmin = 150, xmax = 180, ymin = 0.2, ymax = 0.3) +
-  annotation_custom(watermark, xmin = 150, xmax = 180, ymin = 0.18, ymax = 0.21) +
+  annotation_custom(watermark, xmin = 150, xmax = 180, ymin = 0.28, ymax = 0.32) +
+  annotation_custom(img2, xmin = 150, xmax = 180, ymin = 0.18, ymax = 0.28) +
+  # annotate("text", label = unique(anaimateLapTimesData[year == "{as.integer(frame_time)}", raceToolTip]), x = 165, y = 0.16) +
+  # annotate("text", label = racesResults[year == "{as.integer(frame_time)}", raceToolTip], x = 165, y = 0.16) +
+  annotate("text", label = "Test: {frame_time}", x = 165, y = 0.16) +
+  # annimate stuff
   transition_time(year) +
   enter_fade() + 
   exit_shrink() +
@@ -52,5 +69,6 @@ framesPerGp <- 16
 totalFrames <- (gps * framesPerGp) + 15
 rm(gps, framesPerGp, allCircuitLapTimes, anaimateLapTimesData, vlines, grandPrixName)
 
-animate(ggani, start_pause = 5, end_pause = 10, nframes = totalFrames, detail = 4)
+animate(ggani)
+# animate(ggani, start_pause = 5, end_pause = 10, nframes = totalFrames, detail = 4)
 rm(totalFrames, ggani)

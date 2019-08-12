@@ -87,3 +87,14 @@ driverLapTimesToolTip <- function(pp){
   }
   return(pp)
 }
+
+getTrackImage <- function(circuitId){
+  returnImage <- watermark
+  # Brazil GP
+  if(circuitId == 18){
+    img <- readPNG(source = "images/brazil.png") # need to setup data for these images
+    returnImage <- rasterGrob(img, interpolate = TRUE)
+  }
+  
+  return(returnImage)
+}
