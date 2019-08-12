@@ -1,5 +1,6 @@
 library(data.table)
 library(ggplot2)
+library(ggtext)
 library(ggthemes)
 library(gganimate)
 library(plotly)

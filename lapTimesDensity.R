@@ -13,11 +13,13 @@ anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year
 
 racesResults <- results[raceId %in% unique(anaimateLapTimesData[, raceId])]
 racesResults <- merge(racesResults, races[, .(raceId, year)])
-racesResults <- racesResults[, .(fastestLapSpeed = max(fastestLapSpeed), fastestLapTime = max(fastestLapTime)), by = year]
+racesResults <- racesResults[, .(fastestLapSpeed = max(fastestLapSpeed), fastestLapTime = min(fastestLapTime)), by = year]
 racesResults[, fastestLapSpeed := as.numeric(fastestLapSpeed)]
 racesResults[fastestLapTime == "", fastestLapTime := "No Data"]
-racesResults[, raceToolTip := paste("Fastest Lap: ", fastestLapTime, 
-                                    "\nFastest Lap Speed: ", as.character(fastestLapSpeed), 
+racesResults[, raceToolTip := paste("<span style='font-size:18; color:black'>",
+                                    "**Fastest Lap:** ", fastestLapTime, 
+                                    "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
+                                    "</span>",
                                     sep = "")]
 anaimateLapTimesData <- merge(anaimateLapTimesData, racesResults[, .(year, raceToolTip)], by.x = c("year"), by.y = c("year"))
 
@@ -27,9 +29,7 @@ circuitBoxPlotStats <- boxplot.stats(anaimateLapTimesData[, seconds])
 vlines <- as.data.table(circuitBoxPlotStats$stats[1:5])
 
 grandPrixName <- anaimateLapTimesData[1, name]
-# img <- readPNG(source = "images/brazil.png") # need to setup data for these images
-# img2 <- rasterGrob(img, interpolate = TRUE)
-img2 <- getTrackImage(mostRacesCircuitId)
+circuitImg <- getTrackImage(mostRacesCircuitId)
 rm(circuitBoxPlotStats, mostRacesCircuitId, racesForCircuit,racesWithTimes, raceCounts)
 
 ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) + 
@@ -41,27 +41,29 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   geom_vline(data = vlines, aes(xintercept = V1, color = "red"), linetype = "dashed") +
   xlim(45,180) +
   ylim(0,0.35) +
-  labs(title = paste(grandPrixName, "{frame_time}"), label = "testest") +
+  labs(title = paste(grandPrixName, "{frame_time}")) +
   xlab("Lap Time (seconds)") +
   ylab("Density") +
   theme_wsj() +
+  # legend formatting
   scale_fill_identity(name = "", guide = "legend",
                       labels = c(paste("All", grandPrixName), paste("This", grandPrixName))) +
   scale_alpha_identity(element_blank()) +
   scale_colour_identity(element_blank()) +
   theme(legend.position = c(0.75,0.95), legend.direction = "horizontal",
         axis.title=element_text(size=12)) +
+  # watermark, track image, and fastest lap/speed
   annotation_custom(watermark, xmin = 150, xmax = 180, ymin = 0.28, ymax = 0.32) +
-  annotation_custom(img2, xmin = 150, xmax = 180, ymin = 0.18, ymax = 0.28) +
-  # annotate("text", label = unique(anaimateLapTimesData[year == "{as.integer(frame_time)}", raceToolTip]), x = 165, y = 0.16) +
-  # annotate("text", label = racesResults[year == "{as.integer(frame_time)}", raceToolTip], x = 165, y = 0.16) +
-  annotate("text", label = "Test: {frame_time}", x = 165, y = 0.16) +
-  # annimate stuff
+  annotation_custom(circuitImg, xmin = 150, xmax = 180, ymin = 0.18, ymax = 0.28) +
+  # geom_text(data = racesResults[, .(year, raceToolTip)], aes(x = 165, y = 0.16, label = raceToolTip)) +
+  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 165, y = 0.16, label = raceToolTip),
+                 fill = NA, label.color = NA) +
+  # gganimate stuff
   transition_time(year) +
   enter_fade() + 
   exit_shrink() +
   ease_aes('sine-in-out')
-
+# ggani
 # animate(plot = ggani, nframes = 110, end_pause = 10, ref_frame = 1, fps = 10, duration = 10, detail = 1,
 #         options(gganimate.dev_args = list(width = 960, height = 540)))
 gps <- length(unique(anaimateLapTimesData[, raceId]))
@@ -69,6 +71,5 @@ framesPerGp <- 16
 totalFrames <- (gps * framesPerGp) + 15
 rm(gps, framesPerGp, allCircuitLapTimes, anaimateLapTimesData, vlines, grandPrixName)
 
-animate(ggani)
-# animate(ggani, start_pause = 5, end_pause = 10, nframes = totalFrames, detail = 4)
-rm(totalFrames, ggani)
+animate(ggani, start_pause = 5, end_pause = 10, nframes = totalFrames, detail = 4)
+rm(totalFrames, ggani, circuitImg)

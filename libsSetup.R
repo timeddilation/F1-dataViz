@@ -10,6 +10,10 @@ myLibs <- c("data.table",
             "gifski",
             "png",
             "transformr",
-            "rstudioapi")
+            "rstudioapi",
+            "devtools")
 install.packages(myLibs)
 rm(myLibs)
+
+# just choose NONE is it asks you to update something
+devtools::install_github("clauswilke/ggtext")
