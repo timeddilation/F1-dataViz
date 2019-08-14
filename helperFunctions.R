@@ -90,13 +90,13 @@ driverLapTimesToolTip <- function(pp){
 }
 
 getTrackImage <- function(circuitId){
+  # have a default image to return in case one is not found
   returnImage <- watermark
-  # Brazil GP
-  if(circuitId == 18){
-    img <- readPNG(source = "images/brazil.png") # need to setup data for these images
+  
+  if (circuitId %in% circuits[!is.na(imageSource), circuitId]){
+    img <- readPNG(source = circuits[circuitId == circuitId, imageSource])
     returnImage <- rasterGrob(img, interpolate = TRUE)
   }
-  
   return(returnImage)
 }
 

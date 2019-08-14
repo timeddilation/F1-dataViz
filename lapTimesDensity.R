@@ -59,7 +59,7 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   # watermark, track image, and fastest lap/speed
   annotation_custom(circuitImg, xmin = 150, xmax = 180, ymin = 0.18, ymax = 0.3) +
   annotate(geom = "text", x = 165, y = 0.3, size = 5, label = "github.com/timeddilation") +
-  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.18, label = raceToolTip),
+  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.15, label = raceToolTip),
                  fill = NA, label.color = NA, hjust = 0) +
   # gganimate stuff
   transition_time(year) +

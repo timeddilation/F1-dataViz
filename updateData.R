@@ -1,3 +1,5 @@
+### TODO: create function to fill missing fastest lap times in results
+
 circuits <- fread("data/circuits.csv")
 drivers <- fread("data/drivers.csv")
 lapTimes <- fread("data/lapTimes.csv")
@@ -48,3 +50,32 @@ if (nrow(results) != nrow(newResults)){
   rm (newDataOffset, updatedData)
 }
 rm(newResults)
+
+
+### fix circuit names
+circuits[circuitId == 18, name := "Autódromo José Carlos Pace"]
+circuits[circuitId == 20, name := "Nürburgring"]
+
+### attach circuit image source
+if (!"imageSource" %in% names(circuits)){
+  circuits[, imageSource := character()]
+}
+circuits[circuitId == 1, imageSource := "images/Albert_Park.png"]
+circuits[circuitId == 2, imageSource := "images/Sepang.png"]
+circuits[circuitId == 3, imageSource := "images/Sakhir1.png"]
+circuits[circuitId == 4, imageSource := "images/CircuitDeCatalunya.png"]
+circuits[circuitId == 6, imageSource := "images/Monte_Carlo_Formula_1_track_map.png"]
+circuits[circuitId == 7, imageSource := "images/CircuitGillesVilleneuve.png"]
+circuits[circuitId == 8, imageSource := "images/Magny-Cours.png"]
+circuits[circuitId == 9, imageSource := "images/SilverstoneArena2010.png"]
+circuits[circuitId == 10, imageSource := "images/Hockenheimring2002.png"]
+circuits[circuitId == 11, imageSource := "images/Hungaroring.png"]
+circuits[circuitId == 13, imageSource := "images/Track_map_of_Spa-Francorchamps_in_Belgium.png"]
+circuits[circuitId == 14, imageSource := "Monza2000.png"]
+circuits[circuitId == 15, imageSource := "images/Singapore_street_circuit_v4.png"]
+circuits[circuitId == 17, imageSource := "images/ShanghaiCircuit1.png"]
+circuits[circuitId == 18, imageSource := "images/Interlagos1990.png"]
+circuits[circuitId == 20, imageSource := "images/Nurburgring2002.png"]
+circuits[circuitId == 21, imageSource := "Imola1995.png"]
+circuits[circuitId == 22, imageSource := "SuzukaCircuit2005.png"]
+circuits[circuitId == 24, imageSource := "Circuit_Yas-Island.png"]
