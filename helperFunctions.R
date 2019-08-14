@@ -89,13 +89,14 @@ driverLapTimesToolTip <- function(pp){
   return(pp)
 }
 
-getTrackImage <- function(circuitId){
+getTrackImage <- function(circuit_Id, transparencyVal){
   # have a default image to return in case one is not found
   returnImage <- watermark
   
-  if (circuitId %in% circuits[!is.na(imageSource), circuitId]){
-    img <- readPNG(source = circuits[circuitId == circuitId, imageSource])
-    returnImage <- rasterGrob(img, interpolate = TRUE)
+  if (circuit_Id %in% circuits[!is.na(imageSource), circuitId]){
+    img <- readPNG(source = circuits[circuitId == circuit_Id, imageSource])
+    img2 <- matrix(rgb(img[,,1],img[,,2],img[,,3], img[,,4] * transparencyVal), nrow=dim(img)[1])
+    returnImage <- rasterGrob(img2, interpolate = TRUE)
   }
   return(returnImage)
 }

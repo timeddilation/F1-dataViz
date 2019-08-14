@@ -1,8 +1,8 @@
 ### animate that shit ###
 # set the circuit to evaluate
-raceCounts <- races[raceId %in% unique(lapTimes[, raceId]), .(races = .N), by = circuitId][order(races)]
-mostRacesCircuitId <- as.numeric(raceCounts[nrow(raceCounts), circuitId])
-mostRacesCircuitId <- 18 #static, doing brazil GP for test
+# raceCounts <- races[raceId %in% unique(lapTimes[, raceId]), .(races = .N), by = circuitId][order(races)]
+# mostRacesCircuitId <- as.numeric(raceCounts[nrow(raceCounts), circuitId])
+mostRacesCircuitId <- 18 # set the circuit ID to evaluate here!!!
 # only pull races that have lapTimes data
 racesWithTimes <- unique(lapTimes[, raceId])
 racesForCircuit <- races[circuitId == mostRacesCircuitId][raceId %in% racesWithTimes][order(year)]
@@ -33,7 +33,7 @@ vlines <- as.data.table(circuitBoxPlotStats$stats[1:5])
 # circuitMedianFastestSpeed <- circuitBoxPlotStats[3]
 
 grandPrixName <- anaimateLapTimesData[1, name]
-circuitImg <- getTrackImage(mostRacesCircuitId)
+circuitImg <- getTrackImage(mostRacesCircuitId, 0.2)
 rm(circuitBoxPlotStats, mostRacesCircuitId, racesForCircuit,racesWithTimes, raceCounts)
 
 ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) + 
@@ -45,7 +45,8 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   geom_vline(data = vlines, aes(xintercept = V1, color = "red"), linetype = "dashed") +
   xlim(45,180) +
   ylim(0,0.35) +
-  labs(title = paste(grandPrixName, "{frame_time}")) +
+  labs(title = paste(grandPrixName, "{frame_time}"),
+       subtitle = "Lap Times Density Over Years") +
   xlab("Lap Time (seconds)") +
   ylab("Density") +
   theme_wsj() +
@@ -57,16 +58,17 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   theme(legend.position = c(0.75,0.95), legend.direction = "horizontal",
         axis.title=element_text(size=12)) +
   # watermark, track image, and fastest lap/speed
-  annotation_custom(circuitImg, xmin = 150, xmax = 180, ymin = 0.18, ymax = 0.3) +
-  annotate(geom = "text", x = 165, y = 0.3, size = 5, label = "github.com/timeddilation") +
-  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.15, label = raceToolTip),
+  # annotation_custom(circuitImg, xmin = 45, xmax = 160, ymin = 0, ymax = 0.3) +
+  annotation_custom(circuitImg, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf) +
+  annotate(geom = "text", x = 165, y = 0.015, size = 5, label = "github.com/timeddilation") +
+  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.3, label = raceToolTip),
                  fill = NA, label.color = NA, hjust = 0) +
   # gganimate stuff
   transition_time(year) +
   enter_fade() + 
   exit_shrink() +
   ease_aes('sine-in-out')
-ggani
+# ggani
 
 ### You may need to run this (it will fail) to set the proper dimension of the gif
 ### After running (and failing to run), run the code after this to actually create the gif with the correct dimensions
