@@ -14,5 +14,4 @@ Then you can run any other script.
 
 # Updating the Data
 
-After you download the most recent data from the data source, add the CSV files to a directory in the root of the repository called "newerData". 
-Then run updateData.R
+Download the most recent data from the data source, and replace all existing files in the "data" direcory with the new CSVs.

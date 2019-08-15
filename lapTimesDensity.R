@@ -29,7 +29,11 @@ racesResults[, raceToolTip := paste("<span style='font-size:16; color:black'>",
                                     sep = "")]
 # boxplot stats for static reference lines
 circuitBoxPlotStats <- boxplot.stats(anaimateLapTimesData[, seconds])
-vlines <- as.data.table(circuitBoxPlotStats$stats[1:5])
+# vlines <- as.data.table(circuitBoxPlotStats$stats[1:5])
+vlines <- data.table(# metric = c("First Quartile", "Second Quartile", "Average", "Third Quartile", "Fourth Quartile"),
+                    metric = c("Q1", "Q2", "Median", "Q3", "Q4"),
+                     value = circuitBoxPlotStats$stats[1:5],
+                     metricColor = c("darkgreen", "blue", "brown2", "blue", "darkgreen"))
 # circuitMedianFastestSpeed <- circuitBoxPlotStats[3]
 
 grandPrixName <- anaimateLapTimesData[1, name]
@@ -37,12 +41,13 @@ circuitImg <- getTrackImage(mostRacesCircuitId, 0.2)
 rm(circuitBoxPlotStats, mostRacesCircuitId, racesForCircuit,racesWithTimes, raceCounts)
 
 ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) + 
-  geom_density(data = allCircuitLapTimes[seconds <= 180], aes(x = seconds, color = "green", fill = "green", alpha = 0.5),
-               adjust = 4,
-  ) +
+  geom_density(data = allCircuitLapTimes[seconds <= 180], adjust = 4,
+               aes(x = seconds, color = "green", fill = "green", alpha = 0.5)) +
   geom_density(aes(color = "purple", fill = "purple", alpha = 0.5),
                adjust = 4) +
-  geom_vline(data = vlines, aes(xintercept = V1, color = "red"), linetype = "dashed") +
+  geom_vline(data = vlines, aes(xintercept = value, color = metricColor), linetype = "dashed") +
+  geom_text(data = vlines, aes(x = value + 0.5, y = 0.3, label = metric, color = metricColor), 
+            angle = 270) +
   xlim(45,180) +
   ylim(0,0.35) +
   labs(title = paste(grandPrixName, "{frame_time}"),
@@ -68,11 +73,11 @@ ggani <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   enter_fade() + 
   exit_shrink() +
   ease_aes('sine-in-out')
-# ggani
+ggani
 
 ### You may need to run this (it will fail) to set the proper dimension of the gif
 ### After running (and failing to run), run the code after this to actually create the gif with the correct dimensions
-# animate(plot = ggani, nframes = 110, end_pause = 10, ref_frame = 1, fps = 10, duration = 10, detail = 1,
+# animate(plot = ggani, nframes = 110, end_pause = 10, fps = 10, duration = 10, detail = 1,
 #         options(gganimate.dev_args = list(width = 960, height = 540)))
 
 # setup some params to generate the final gif
