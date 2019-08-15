@@ -8,7 +8,6 @@ racesWithTimes <- unique(lapTimes[, raceId])
 racesForCircuit <- races[circuitId == mostRacesCircuitId][raceId %in% racesWithTimes][order(year)]
 # pull all lap times for races, and create a "seconds" column for the lap time
 allCircuitLapTimes <- lapTimes[raceId %in% racesForCircuit[, raceId]]
-allCircuitLapTimes[, seconds := milliseconds / 1000]
 # limit lap times to those under 3 minutes, removes pit stop laps and exceedingly slow laps that might throw off intended resutls
 anaimateLapTimesData <- allCircuitLapTimes[seconds <= 180]
 anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year)])

@@ -30,6 +30,9 @@ loadF1Data <- function(){
   results <<- fread("data/results.csv")
   names(results) <<- c("resultId","raceId","driverId","constructorId","number","grid","position","positionText","positionOrder","points","laps","time","milliseconds","fastestLap","rank","fastestLapTime","fastestLapSpeed","statusId")
   
+  ### milliseconds displayed as seconds makes lubridate functions easier
+  lapTimes[, seconds := milliseconds / 1000]
+  
   ### fix circuit names
   circuits[circuitId == 18, name := "Autódromo José Carlos Pace"]
   circuits[circuitId == 20, name := "Nürburgring"]
@@ -148,4 +151,10 @@ convertLapTimeStringToSeconds <- function(lapTimeString){
   seconds <- as.double(gsub(":", "", seconds, fixed = TRUE))
   totalSeconds <- (minutes * 60) + seconds
   return(totalSeconds)
+}
+
+convertSecondsToDisplayTime <- function(secondsToConvert){
+  totalMinutes <- floor(secondsToConvert / 60)
+  remainingSeconds <- secondsToConvert - (totalMinutes * 60)
+  paste(totalMinutes, ":", sprintf("%.3f", round(remainingSeconds,3)), sep = "")
 }
