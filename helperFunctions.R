@@ -138,7 +138,7 @@ loadF1Data <- function(){
   ### but it's fine, it's just a warning, intended behavior here.
   racesWithTimes <- unique(lapTimes[, raceId])
   raceSpeeds <- results[raceId %in% racesWithTimes][, fastestLapSpeed := as.numeric(fastestLapSpeed)]
-  raceSpeeds <- raceSpeeds[!is.na(fastestLapSpeed), .(highestSpeed = min(fastestLapSpeed)), by = raceId]
+  raceSpeeds <- raceSpeeds[!is.na(fastestLapSpeed), .(highestSpeed = max(fastestLapSpeed)), by = raceId]
   
   fastestLaps <<- lapTimes[, .(milliseconds = min(milliseconds)), by = raceId]
   fastestLaps[, seconds := milliseconds / 1000]
