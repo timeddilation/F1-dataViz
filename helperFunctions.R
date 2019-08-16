@@ -14,56 +14,6 @@ watermrk <- readPNG(source = "images/watermark.png")
 watermark <- rasterGrob(watermrk, interpolate = TRUE)
 rm(watermrk)
 
-loadF1Data <- function(){
-  circuits <<- fread("data/circuits.csv")
-  names(circuits) <<- c("circuitId","circuitRef","name","location","country","lat","lng","alt","url")
-  
-  drivers <<- fread("data/driver.csv")
-  names(drivers) <<- c("driverId","driverRef","number","code","forename","surname","dob","nationality","url")
-  
-  lapTimes <<- fread("data/lap_times.csv")
-  names(lapTimes) <<- c("raceId","driverId","lap","position","time","milliseconds")
-  
-  races <<- fread("data/races.csv")
-  names(races) <<- c("raceId","year","round","circuitId","name","date","url")
-  
-  results <<- fread("data/results.csv")
-  names(results) <<- c("resultId","raceId","driverId","constructorId","number","grid","position","positionText","positionOrder","points","laps","time","milliseconds","fastestLap","rank","fastestLapTime","fastestLapSpeed","statusId")
-  
-  ### milliseconds displayed as seconds makes lubridate functions easier
-  lapTimes[, seconds := milliseconds / 1000]
-  
-  ### fix circuit names
-  circuits[circuitId == 18, name := "Autódromo José Carlos Pace"]
-  circuits[circuitId == 20, name := "Nürburgring"]
-  
-  ### attach circuit image source
-  if (!"imageSource" %in% names(circuits)){
-    circuits[, imageSource := character()]
-  }
-  circuits[circuitId == 1, imageSource := "images/Albert_Park.png"]
-  circuits[circuitId == 2, imageSource := "images/Sepang.png"]
-  circuits[circuitId == 3, imageSource := "images/Sakhir1.png"]
-  circuits[circuitId == 4, imageSource := "images/CircuitDeCatalunya.png"]
-  circuits[circuitId == 6, imageSource := "images/Monte_Carlo_Formula_1_track_map.png"]
-  circuits[circuitId == 7, imageSource := "images/CircuitGillesVilleneuve.png"]
-  circuits[circuitId == 8, imageSource := "images/Magny-Cours.png"]
-  circuits[circuitId == 9, imageSource := "images/SilverstoneArena2010.png"]
-  circuits[circuitId == 10, imageSource := "images/Hockenheimring2002.png"]
-  circuits[circuitId == 11, imageSource := "images/Hungaroring.png"]
-  circuits[circuitId == 13, imageSource := "images/Track_map_of_Spa-Francorchamps_in_Belgium.png"]
-  circuits[circuitId == 14, imageSource := "Monza2000.png"]
-  circuits[circuitId == 15, imageSource := "images/Singapore_street_circuit_v4.png"]
-  circuits[circuitId == 17, imageSource := "images/ShanghaiCircuit1.png"]
-  circuits[circuitId == 18, imageSource := "images/Interlagos1990.png"]
-  circuits[circuitId == 20, imageSource := "images/Nurburgring2002.png"]
-  circuits[circuitId == 21, imageSource := "Imola1995.png"]
-  circuits[circuitId == 22, imageSource := "SuzukaCircuit2005.png"]
-  circuits[circuitId == 24, imageSource := "Circuit_Yas-Island.png"]
-}
-
-loadF1Data()
-
 generateRaceDriverLaps <- function(raceIdEval) {
   raceLaps <- merge(lapTimes[raceId == raceIdEval], drivers[, .(driverId, surname)])
   raceLaps[, seconds := milliseconds / 1000]
@@ -156,5 +106,80 @@ convertLapTimeStringToSeconds <- function(lapTimeString){
 convertSecondsToDisplayTime <- function(secondsToConvert){
   totalMinutes <- floor(secondsToConvert / 60)
   remainingSeconds <- secondsToConvert - (totalMinutes * 60)
-  paste(totalMinutes, ":", sprintf("%.3f", round(remainingSeconds,3)), sep = "")
+  if (remainingSeconds < 10){
+    displayTime <- paste(totalMinutes, ":0", sprintf("%.3f", round(remainingSeconds,3)), sep = "")
+  } else {
+    displayTime <- paste(totalMinutes, ":", sprintf("%.3f", round(remainingSeconds,3)), sep = "")  
+  }
+  return(displayTime)
 }
+
+loadF1Data <- function(){
+  circuits <<- fread("data/circuits.csv")
+  names(circuits) <<- c("circuitId","circuitRef","name","location","country","lat","lng","alt","url")
+  
+  drivers <<- fread("data/driver.csv")
+  names(drivers) <<- c("driverId","driverRef","number","code","forename","surname","dob","nationality","url")
+  
+  lapTimes <<- fread("data/lap_times.csv")
+  names(lapTimes) <<- c("raceId","driverId","lap","position","time","milliseconds")
+  
+  races <<- fread("data/races.csv")
+  names(races) <<- c("raceId","year","round","circuitId","name","date","url")
+  
+  results <<- fread("data/results.csv")
+  names(results) <<- c("resultId","raceId","driverId","constructorId","number","grid","position","positionText","positionOrder","points","laps","time","milliseconds","fastestLap","rank","fastestLapTime","fastestLapSpeed","statusId")
+  
+  ### milliseconds displayed as seconds makes lubridate functions easier
+  lapTimes[, seconds := milliseconds / 1000]
+  
+  ### create new table for fastest laps, because some of these are missing from core data
+  ### note: this throws warning: "In eval(jsub, SDenv, parent.frame()) : NAs introduced by coercion"
+  ### but it's fine, it's just a warning, intended behavior here.
+  racesWithTimes <- unique(lapTimes[, raceId])
+  raceSpeeds <- results[raceId %in% racesWithTimes][, fastestLapSpeed := as.numeric(fastestLapSpeed)]
+  raceSpeeds <- raceSpeeds[!is.na(fastestLapSpeed), .(highestSpeed = min(fastestLapSpeed)), by = raceId]
+  
+  fastestLaps <<- lapTimes[, .(milliseconds = min(milliseconds)), by = raceId]
+  fastestLaps[, seconds := milliseconds / 1000]
+  for (i in 1:nrow(fastestLaps)) {
+    fastestLaps[i, displayTime := convertSecondsToDisplayTime(seconds)]
+  }
+  fastestLaps[, fastestLapSpeed := as.numeric()]
+  for (i in raceSpeeds[, raceId]) {
+    speedVal <- raceSpeeds[raceId == i, highestSpeed]
+    fastestLaps[raceId == i, fastestLapSpeed := speedVal]
+  }
+  fastestLaps[, fastestLapSpeed := sprintf("%.3f", round(fastestLapSpeed,3))]
+  fastestLaps[is.na(fastestLapSpeed), fastestLapSpeed := "No Data"]
+  
+  ### fix circuit names
+  circuits[circuitId == 18, name := "Autódromo José Carlos Pace"]
+  circuits[circuitId == 20, name := "Nürburgring"]
+  
+  ### attach circuit image source
+  if (!"imageSource" %in% names(circuits)){
+    circuits[, imageSource := character()]
+  }
+  circuits[circuitId == 1, imageSource := "images/Albert_Park.png"]
+  circuits[circuitId == 2, imageSource := "images/Sepang.png"]
+  circuits[circuitId == 3, imageSource := "images/Sakhir1.png"]
+  circuits[circuitId == 4, imageSource := "images/CircuitDeCatalunya.png"]
+  circuits[circuitId == 6, imageSource := "images/Monte_Carlo_Formula_1_track_map.png"]
+  circuits[circuitId == 7, imageSource := "images/CircuitGillesVilleneuve.png"]
+  circuits[circuitId == 8, imageSource := "images/Magny-Cours.png"]
+  circuits[circuitId == 9, imageSource := "images/SilverstoneArena2010.png"]
+  circuits[circuitId == 10, imageSource := "images/Hockenheimring2002.png"]
+  circuits[circuitId == 11, imageSource := "images/Hungaroring.png"]
+  circuits[circuitId == 13, imageSource := "images/Track_map_of_Spa-Francorchamps_in_Belgium.png"]
+  circuits[circuitId == 14, imageSource := "Monza2000.png"]
+  circuits[circuitId == 15, imageSource := "images/Singapore_street_circuit_v4.png"]
+  circuits[circuitId == 17, imageSource := "images/ShanghaiCircuit1.png"]
+  circuits[circuitId == 18, imageSource := "images/Interlagos1990.png"]
+  circuits[circuitId == 20, imageSource := "images/Nurburgring2002.png"]
+  circuits[circuitId == 21, imageSource := "Imola1995.png"]
+  circuits[circuitId == 22, imageSource := "SuzukaCircuit2005.png"]
+  circuits[circuitId == 24, imageSource := "Circuit_Yas-Island.png"]
+}
+
+loadF1Data()
