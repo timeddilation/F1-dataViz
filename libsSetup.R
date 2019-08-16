@@ -11,7 +11,8 @@ myLibs <- c("data.table",
             "png",
             "transformr",
             "rstudioapi",
-            "devtools")
+            "devtools",
+            "magick")
 install.packages(myLibs)
 rm(myLibs)
 
