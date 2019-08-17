@@ -5,6 +5,8 @@ magick convert spread.gif -repage 960x100 -coalesce \
 		  
 magick convert density.gif -repage 960x540 -coalesce \
           null: \( spreadMedian.gif -coalesce \) \
-          -geometry +0+440 -layers Composite    lapTimesDensity.gif
+          -geometry +0+440 -layers Composite    combined.gif
 		  
-rm -f spread.gif median.gif density.gif spreadMedian.gif
+magick convert combined.gif -fuzz 2% +dither -layers Optimize +map lapTimesDensity.gif
+
+rm -f spread.gif median.gif density.gif spreadMedian.gif combined.gif
