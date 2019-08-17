@@ -2,7 +2,7 @@
 # set the circuit to evaluate
 # raceCounts <- races[raceId %in% unique(lapTimes[, raceId]), .(races = .N), by = circuitId][order(races)]
 # mostRacesCircuitId <- as.numeric(raceCounts[nrow(raceCounts), circuitId])
-mostRacesCircuitId <- 18 # set the circuit ID to evaluate here!!!
+mostRacesCircuitId <- 13 # set the circuit ID to evaluate here!!!
 # only pull races that have lapTimes data
 racesWithTimes <- unique(lapTimes[, raceId])
 racesForCircuit <- races[circuitId == mostRacesCircuitId][raceId %in% racesWithTimes][order(year)]
@@ -17,7 +17,7 @@ racesResults <- merge(racesResults, fastestLaps, by = "raceId")
 racesResults <- merge(racesResults, anaimateLapTimesData[, .(medianLapTime = median(seconds)), by = raceId], by = "raceId")
 racesResults[, raceToolTip := paste("<span style='font-size:16; color:black'>",
                                     "**Fastest Lap:** ", displayTime, 
-                                    "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
+                                    # "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
                                     "</span>",
                                     sep = "")]
 # boxplot stats for static reference lines
@@ -28,6 +28,7 @@ vlines <- data.table(metric = c("Q1", "Q2", "Median", "Q3", "Q4"),
 
 grandPrixName <- anaimateLapTimesData[1, name]
 circuitImg <- getTrackImage(mostRacesCircuitId, 0.2)
+trackWorldMap <- generateCircuitWorldMap(mostRacesCircuitId)
 rm(circuitBoxPlotStats, mostRacesCircuitId, racesForCircuit, racesWithTimes)
 
 ### define plot size
@@ -37,13 +38,14 @@ yMin <- 0
 yMax <- 0.35
 # density large plot
 denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) + 
+  annotation_custom(trackWorldMap, xmin = 35, xmax = 75, ymin = 0.22, ymax = 0.4) +
   geom_density(data = allCircuitLapTimes[seconds <= 180], adjust = 4,
-               aes(x = seconds, color = "green", fill = "green", alpha = 0.5)) +
-  geom_density(aes(color = "purple", fill = "purple", alpha = 0.5),
+               aes(x = seconds, color = "gray50", fill = "gray70", alpha = 0.5)) +
+  geom_density(aes(color = "red2", fill = "red2", alpha = 0.5),
                adjust = 4) +
   geom_vline(data = vlines, aes(xintercept = value, color = metricColor), linetype = "dashed") +
-  geom_text(data = vlines, aes(x = value + 0.5, y = 0.3, label = metric, color = metricColor), 
-            angle = 270) +
+  # geom_text(data = vlines, aes(x = value + 0.5, y = 0.3, label = metric, color = metricColor), 
+  #           angle = 270) +
   xlim(xMin,xMax) +
   ylim(yMin,yMax) +
   labs(title = paste(grandPrixName, "{frame_time}"),
@@ -53,22 +55,23 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   theme_wsj() +
   # legend formatting
   scale_fill_identity(name = "", guide = "legend",
-                      labels = c(paste("All", grandPrixName), paste("This", grandPrixName))) +
+                      labels = c("All Grand Prix", "Year's Grand Prix")) +
   scale_alpha_identity(element_blank()) +
   scale_colour_identity(element_blank()) +
-  theme(legend.position = c(0.75,0.95), legend.direction = "horizontal",
+  theme(legend.position = c(0.88,1), legend.direction = "vertical",
+        legend.background = element_blank(),
         axis.title=element_text(size=12)) +
   # watermark, track image, and fastest lap/speed
   annotation_custom(circuitImg, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf) +
   annotate(geom = "text", x = 165, y = 0.015, size = 5, label = "github.com/timeddilation") +
-  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.3, label = raceToolTip),
+  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 155, y = 0.31, label = raceToolTip),
                  fill = NA, label.color = NA, hjust = 0) +
   # gganimmate stuff
   transition_time(year) +
   enter_fade() + 
   exit_shrink() +
   ease_aes('sine-in-out')
-# animate(denAnim, width = 960, height = 440)
+animate(denAnim, width = 960, height = 440)
 
 # field spread (boxplot)
 spreadAnim <- ggplot(anaimateLapTimesData[seconds <= 180]) +
@@ -118,7 +121,7 @@ medianAnimGif <- animate(medianAnim, start_pause = 5, end_pause = 10, nframes = 
 anim_save("gifFiles/density.gif", denAnimGif)
 anim_save("gifFiles/spread.gif", spreadAnimGif)
 anim_save("gifFiles/median.gif", medianAnimGif)
-# denAnimGif
+
 rm(gps, framesPerGp, allCircuitLapTimes, anaimateLapTimesData, vlines, grandPrixName, 
-   racesResults, circuitImg, totalFrames, xMin, xMax, yMin, yMax)
+   racesResults, circuitImg, trackWorldMap, totalFrames, xMin, xMax, yMin, yMax)
 rm(denAnim, spreadAnim, medianAnim)

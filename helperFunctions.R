@@ -122,7 +122,7 @@ generateCircuitWorldMap <- function(circuit_Id){
   circuitMap <- ggplot(circuits[circuitId == circuit_Id]) + 
     worldMap +
     coord_cartesian(ylim = c(-50, 90)) +
-    geom_point(aes(x = lng, y = lat), colour = "red3", size = 10, shape = 10, stroke = 3) +
+    geom_point(aes(x = lng, y = lat), colour = "red3", size = 30, shape = 10, stroke = 3) +
     theme(axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
