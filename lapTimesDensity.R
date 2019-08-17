@@ -65,8 +65,8 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   # watermark, track image, and fastest lap/speed
   annotation_custom(circuitImg, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf) +
   annotate(geom = "text", x = 165, y = 0.015, size = 5, label = "github.com/timeddilation") +
-  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 155, y = 0.31, label = raceToolTip),
-                 fill = NA, label.color = NA, hjust = 0) +
+  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.31, label = raceToolTip),
+                 fill = NA, label.color = NA, hjust = 0, family = "mono") +
   # gganimmate stuff
   transition_time(year) +
   enter_fade() + 
