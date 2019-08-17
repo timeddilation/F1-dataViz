@@ -1,5 +1,6 @@
 library(data.table)
 library(ggplot2)
+library(ggmap)
 library(ggtext)
 library(ggthemes)
 library(gganimate)
@@ -115,6 +116,30 @@ convertSecondsToDisplayTime <- function(secondsToConvert){
   return(displayTime)
 }
 
+generateCircuitWorldMap <- function(circuit_Id){
+  worldMap <- borders("world", colour = "gray40", fill = "gray42")
+  
+  circuitMap <- ggplot(circuits[circuitId == circuit_Id]) + 
+    worldMap +
+    coord_cartesian(ylim = c(-50, 90)) +
+    geom_point(aes(x = lng, y = lat), colour = "red3", size = 10, shape = 10, stroke = 3) +
+    theme(axis.title = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_rect(fill = "transparent"),
+          plot.background = element_rect(fill = "transparent"))
+  
+  trackMapLocation <- "images/tempTrackMap.png"
+  ggsave(plot = circuitMap, trackMapLocation, device = "png", height = 9, width = 16, bg = "transparent")
+  
+  img <- readPNG(source = trackMapLocation)
+  returnImage <- rasterGrob(img, interpolate = TRUE)
+  
+  return(returnImage)
+}
+
 loadF1Data <- function(){
   circuits <<- fread("data/circuits.csv")
   names(circuits) <<- c("circuitId","circuitRef","name","location","country","lat","lng","alt","url")
@@ -162,25 +187,25 @@ loadF1Data <- function(){
   if (!"imageSource" %in% names(circuits)){
     circuits[, imageSource := character()]
   }
-  circuits[circuitId == 1, imageSource := "images/Albert_Park.png"]
-  circuits[circuitId == 2, imageSource := "images/Sepang.png"]
-  circuits[circuitId == 3, imageSource := "images/Sakhir1.png"]
-  circuits[circuitId == 4, imageSource := "images/CircuitDeCatalunya.png"]
-  circuits[circuitId == 6, imageSource := "images/Monte_Carlo_Formula_1_track_map.png"]
-  circuits[circuitId == 7, imageSource := "images/CircuitGillesVilleneuve.png"]
-  circuits[circuitId == 8, imageSource := "images/Magny-Cours.png"]
-  circuits[circuitId == 9, imageSource := "images/SilverstoneArena2010.png"]
-  circuits[circuitId == 10, imageSource := "images/Hockenheimring2002.png"]
-  circuits[circuitId == 11, imageSource := "images/Hungaroring.png"]
-  circuits[circuitId == 13, imageSource := "images/Track_map_of_Spa-Francorchamps_in_Belgium.png"]
-  circuits[circuitId == 14, imageSource := "Monza2000.png"]
-  circuits[circuitId == 15, imageSource := "images/Singapore_street_circuit_v4.png"]
-  circuits[circuitId == 17, imageSource := "images/ShanghaiCircuit1.png"]
-  circuits[circuitId == 18, imageSource := "images/Interlagos1990.png"]
-  circuits[circuitId == 20, imageSource := "images/Nurburgring2002.png"]
-  circuits[circuitId == 21, imageSource := "Imola1995.png"]
-  circuits[circuitId == 22, imageSource := "SuzukaCircuit2005.png"]
-  circuits[circuitId == 24, imageSource := "Circuit_Yas-Island.png"]
+  circuits[circuitId == 1, imageSource := "images/tracks/Albert_Park.png"]
+  circuits[circuitId == 2, imageSource := "images/tracks/Sepang.png"]
+  circuits[circuitId == 3, imageSource := "images/tracks/Sakhir1.png"]
+  circuits[circuitId == 4, imageSource := "images/tracks/CircuitDeCatalunya.png"]
+  circuits[circuitId == 6, imageSource := "images/tracks/Monte_Carlo_Formula_1_track_map.png"]
+  circuits[circuitId == 7, imageSource := "images/tracks/CircuitGillesVilleneuve.png"]
+  circuits[circuitId == 8, imageSource := "images/tracks/Magny-Cours.png"]
+  circuits[circuitId == 9, imageSource := "images/tracks/SilverstoneArena2010.png"]
+  circuits[circuitId == 10, imageSource := "images/tracks/Hockenheimring2002.png"]
+  circuits[circuitId == 11, imageSource := "images/tracks/Hungaroring.png"]
+  circuits[circuitId == 13, imageSource := "images/tracks/Track_map_of_Spa-Francorchamps_in_Belgium.png"]
+  circuits[circuitId == 14, imageSource := "images/tracks/Monza2000.png"]
+  circuits[circuitId == 15, imageSource := "images/tracks/Singapore_street_circuit_v4.png"]
+  circuits[circuitId == 17, imageSource := "images/tracks/ShanghaiCircuit1.png"]
+  circuits[circuitId == 18, imageSource := "images/tracks/Interlagos1990.png"]
+  circuits[circuitId == 20, imageSource := "images/tracks/Nurburgring2002.png"]
+  circuits[circuitId == 21, imageSource := "images/tracks/Imola1995.png"]
+  circuits[circuitId == 22, imageSource := "images/tracks/SuzukaCircuit2005.png"]
+  circuits[circuitId == 24, imageSource := "images/tracks/Circuit_Yas-Island.png"]
 }
 
 loadF1Data()

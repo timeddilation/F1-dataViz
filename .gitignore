@@ -12,3 +12,6 @@ newerData/
 
 # Ignore generated gof files
 gifFiles/*.gif
+
+# Ignore temp map file generated as a one-off
+images/tempTrackMap.png
