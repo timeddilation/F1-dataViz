@@ -68,7 +68,7 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   enter_fade() + 
   exit_shrink() +
   ease_aes('sine-in-out')
-# animate(denAnim, width = 960, height = 540)
+# animate(denAnim, width = 960, height = 440)
 
 # field spread (boxplot)
 spreadAnim <- ggplot(anaimateLapTimesData[seconds <= 180]) +
@@ -109,12 +109,16 @@ framesPerGp <- 16
 totalFrames <- (gps * framesPerGp) + 15
 
 denAnimGif <- animate(denAnim, start_pause = 5, end_pause = 10, nframes = totalFrames, 
-                      detail = 4, width = 960, height = 540)
+                      detail = 4, width = 960, height = 440)
 spreadAnimGif <- animate(spreadAnim, start_pause = 5, end_pause = 10, nframes = totalFrames, 
                          detail = 4, width = 480, height = 100)
 medianAnimGif <- animate(medianAnim, start_pause = 5, end_pause = 10, nframes = totalFrames, 
                          detail = 4, width = 480, height = 100)
+
+anim_save("gifFiles/density.gif", denAnimGif)
+anim_save("gifFiles/spread.gif", spreadAnimGif)
+anim_save("gifFiles/median.gif", medianAnimGif)
 # denAnimGif
 rm(gps, framesPerGp, allCircuitLapTimes, anaimateLapTimesData, vlines, grandPrixName, 
-   racesResults, totalFrames, denAnim, circuitImg, xMin, xMax, yMin, yMax)
+   racesResults, circuitImg, totalFrames, xMin, xMax, yMin, yMax)
 rm(denAnim, spreadAnim, medianAnim)

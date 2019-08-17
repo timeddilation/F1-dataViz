@@ -5,7 +5,10 @@ backupOriginalData/
 tests.R
 
 # Ignore R generated files
-.Rhisotry
+.Rhistory
 
 # Ignore newer data directory
 newerData/
+
+# Ignore generated gof files
+gifFiles/*.gif
