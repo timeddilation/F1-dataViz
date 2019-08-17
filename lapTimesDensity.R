@@ -2,7 +2,7 @@
 # set the circuit to evaluate
 # raceCounts <- races[raceId %in% unique(lapTimes[, raceId]), .(races = .N), by = circuitId][order(races)]
 # evalCircuit_Id <- as.numeric(raceCounts[nrow(raceCounts), circuitId])
-evalCircuit_Id <- 7 # set the circuit ID to evaluate here!!!
+evalCircuit_Id <- 6 # set the circuit ID to evaluate here!!!
 # only pull races that have lapTimes data
 racesWithTimes <- unique(lapTimes[, raceId])
 racesForCircuit <- races[circuitId == evalCircuit_Id][raceId %in% racesWithTimes][order(year)]
@@ -46,11 +46,12 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   geom_vline(data = vlines, aes(xintercept = value, color = metricColor), linetype = "dashed") +
   # geom_text(data = vlines, aes(x = value + 0.5, y = 0.3, label = metric, color = metricColor), 
   #           angle = 270) +
-  xlim(xMin,xMax) +
   ylim(yMin,yMax) +
+  scale_x_time(limits = c(xMin, xMax), breaks = c(45,60,75,90,105,120,135,150,165,180), 
+               labels = c("00:45","01:00","01:15","01:30","01:45","02:00","02:15","02:30","02:45","03:00")) +
   labs(title = paste(circuitName, "{frame_time}"),
        subtitle = "Lap Times Density Over Years") +
-  xlab("Lap Time (seconds)") +
+  xlab("Lap Time") +
   ylab("Density") +
   theme_wsj() +
   # legend formatting
