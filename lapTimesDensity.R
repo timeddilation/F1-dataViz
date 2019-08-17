@@ -2,7 +2,7 @@
 # set the circuit to evaluate
 # raceCounts <- races[raceId %in% unique(lapTimes[, raceId]), .(races = .N), by = circuitId][order(races)]
 # evalCircuit_Id <- as.numeric(raceCounts[nrow(raceCounts), circuitId])
-evalCircuit_Id <- 6 # set the circuit ID to evaluate here!!!
+evalCircuit_Id <- 7 # set the circuit ID to evaluate here!!!
 # only pull races that have lapTimes data
 racesWithTimes <- unique(lapTimes[, raceId])
 racesForCircuit <- races[circuitId == evalCircuit_Id][raceId %in% racesWithTimes][order(year)]
@@ -55,7 +55,7 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   theme_wsj() +
   # legend formatting
   scale_fill_identity(name = "", guide = "legend",
-                      labels = c("All Grand Prix", "Year's Grand Prix")) +
+                      labels = c("All Grands Prix", "Year's Grand Prix")) +
   scale_alpha_identity(element_blank()) +
   scale_colour_identity(element_blank()) +
   theme(legend.position = c(0.88,1), legend.direction = "vertical",
