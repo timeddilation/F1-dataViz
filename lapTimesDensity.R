@@ -86,6 +86,8 @@ spreadAnim <- ggplot(anaimateLapTimesData[seconds <= 180]) +
         axis.ticks.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12)) +
+  scale_y_time(limits = c(xMin, xMax), breaks = c(45,60,75,90,105,120,135,150,165,180), 
+               labels = c("00:45","01:00","01:15","01:30","01:45","02:00","02:15","02:30","02:45","03:00")) +
   coord_flip() +
   transition_time(year) +
   enter_fade() +
