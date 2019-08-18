@@ -4,7 +4,6 @@ library(ggmap)
 library(ggtext)
 library(ggthemes)
 library(gganimate)
-# library(magick)
 library(plotly)
 library(lubridate)
 library(dplyr)
@@ -25,12 +24,11 @@ generateRaceDriverLaps <- function(raceIdEval) {
 }
 
 raceLapsBoxPlotsMinMax <- function(race_Id) {
-  # returns min and max laps times across all laps' boxplot.stats[1,5]
+  # returns min and max laps times across all laps
   driverLapsNormWhiskers <- lapTimes[raceId == race_Id, .(min = boxplot.stats(milliseconds)$stats[1],
                                                                max = boxplot.stats(milliseconds)$stats[5]),
                                        by = lap]
   minTime <- min(driverLapsNormWhiskers[, min])
-  #maxTime <- max(driverLapsNormWhiskers[, max]) #+ (30 * 1000) # add 30 seconds
   maxTime <- 3*60*1000 #3 minutes
   minMax <- c(minTime - (minTime * 0.01), maxTime * 1.05)
 
@@ -122,7 +120,7 @@ generateCircuitWorldMap <- function(circuit_Id){
   circuitMap <- ggplot(circuits[circuitId == circuit_Id]) + 
     worldMap +
     coord_cartesian(ylim = c(-50, 90)) +
-    geom_point(aes(x = lng, y = lat), colour = "red3", size = 30, shape = 10, stroke = 3) +
+    geom_point(aes(x = lng, y = lat), colour = "red3", size = 30, shape = 10, stroke = 4) +
     theme(axis.title = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank(),
@@ -209,3 +207,10 @@ loadF1Data <- function(){
 }
 
 loadF1Data()
+
+secondsDisplay <- data.table(
+  secondsInt = seq(from = 30, to = 180, by = 5),
+  secondsDisp = c("00:30","","","00:45","","","01:00","","","01:15","","",
+                  "01:30","","","01:45","","","02:00","","","02:15","","",
+                  "02:30","","","02:45","","","03:00")
+)

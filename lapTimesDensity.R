@@ -1,8 +1,6 @@
 ### animate that shit ###
-# set the circuit to evaluate
-# raceCounts <- races[raceId %in% unique(lapTimes[, raceId]), .(races = .N), by = circuitId][order(races)]
-# evalCircuit_Id <- as.numeric(raceCounts[nrow(raceCounts), circuitId])
 evalCircuit_Id <- 6 # set the circuit ID to evaluate here!!!
+
 # only pull races that have lapTimes data
 racesWithTimes <- unique(lapTimes[, raceId])
 racesForCircuit <- races[circuitId == evalCircuit_Id][raceId %in% racesWithTimes][order(year)]
@@ -20,6 +18,13 @@ racesResults[, raceToolTip := paste("<span style='font-size:16; color:black'>",
                                     # "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
                                     "</span>",
                                     sep = "")]
+# generate the breaks for the median lap times metric
+# min/max should be in increments of 5, breaks/labels should be in increments of 15
+medianMin <- floor(min(racesResults[, medianLapTime]))
+medianMin <- medianMin - medianMin %% 5
+medianMax <- ceiling(max(racesResults[, medianLapTime]))
+medianMax <- medianMax + (5 - medianMax %% 5)
+medianBreaks <- secondsDisplay[secondsInt %% 15 == 0][secondsInt >= medianMin & secondsInt <= medianMax]
 # boxplot stats for static reference lines
 circuitBoxPlotStats <- boxplot.stats(anaimateLapTimesData[, seconds])
 vlines <- data.table(metric = c("Q1", "Q2", "Median", "Q3", "Q4"),
@@ -44,11 +49,10 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   geom_density(aes(color = "red2", fill = "red2", alpha = 0.5),
                adjust = 4) +
   geom_vline(data = vlines, aes(xintercept = value, color = metricColor), linetype = "dashed") +
-  # geom_text(data = vlines, aes(x = value + 0.5, y = 0.3, label = metric, color = metricColor), 
-  #           angle = 270) +
   ylim(yMin,yMax) +
-  scale_x_time(limits = c(xMin, xMax), breaks = c(45,60,75,90,105,120,135,150,165,180), 
-               labels = c("00:45","01:00","01:15","01:30","01:45","02:00","02:15","02:30","02:45","03:00")) +
+  scale_x_time(limits = c(xMin, xMax),
+               breaks = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsInt], 
+               labels = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsDisp]) +
   labs(title = paste(circuitName, "{frame_time}"),
        subtitle = "Lap Times Density Over Years") +
   xlab("Lap Time") +
@@ -86,8 +90,9 @@ spreadAnim <- ggplot(anaimateLapTimesData[seconds <= 180]) +
         axis.ticks.y = element_blank(),
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12)) +
-  scale_y_time(limits = c(xMin, xMax), breaks = c(45,60,75,90,105,120,135,150,165,180), 
-               labels = c("00:45","01:00","01:15","01:30","01:45","02:00","02:15","02:30","02:45","03:00")) +
+  scale_y_time(limits = c(xMin, xMax),
+               breaks = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsInt], 
+               labels = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsDisp]) +
   coord_flip() +
   transition_time(year) +
   enter_fade() +
@@ -104,6 +109,9 @@ medianAnim <- ggplot(racesResults, aes(x = year, y = medianLapTime)) +
   theme_wsj() +
   theme(plot.title = element_text(size = 12),
         axis.title.x = element_blank()) +
+  scale_y_time(limits = c(medianMin, medianMax), 
+               breaks = medianBreaks[, secondsInt],
+               labels = medianBreaks[, secondsDisp]) +
   transition_reveal(year) +
   enter_fade() +
   exit_shrink() +
@@ -127,5 +135,6 @@ anim_save("gifFiles/spread.gif", spreadAnimGif)
 anim_save("gifFiles/median.gif", medianAnimGif)
 
 rm(gps, framesPerGp, allCircuitLapTimes, anaimateLapTimesData, vlines, circuitName, 
-   racesResults, circuitImg, trackWorldMap, totalFrames, xMin, xMax, yMin, yMax)
+   racesResults, circuitImg, trackWorldMap, totalFrames, xMin, xMax, yMin, yMax,
+   medianMin, medianMax, medianBreaks)
 rm(denAnim, spreadAnim, medianAnim)

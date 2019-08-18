@@ -12,7 +12,6 @@ myLibs <- c("data.table",
             "transformr",
             "rstudioapi",
             "devtools",
-            "magick",
             "ggmap",
             "maps")
 install.packages(myLibs)
