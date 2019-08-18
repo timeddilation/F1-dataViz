@@ -85,7 +85,7 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   scale_colour_identity(element_blank()) +
   theme(legend.position = c(0.88,1), legend.direction = "vertical",
         legend.background = element_blank(),
-        legend.text = element_text(size = 14, family = "mono", colour = ),
+        legend.text = element_text(size = 14, family = "mono"),
         axis.title=element_text(size=12)) +
   # watermark, track image, and fastest lap/speed
   annotation_custom(circuitImg, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf) +

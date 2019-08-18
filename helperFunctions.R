@@ -157,6 +157,9 @@ loadF1Data <- function(){
   pitStops <<- fread("data/pit_stops.csv")
   names(pitStops) <<- c("raceId","driverId","stop","lap","time","duration","milliseconds")
   
+  statuses <<- fread("data/status.csv")
+  names(statuses) <<- c("statusId", "status")
+  
   ### milliseconds displayed as seconds makes lubridate functions easier
   lapTimes[, seconds := milliseconds / 1000]
   
