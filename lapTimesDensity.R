@@ -51,8 +51,8 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   geom_vline(data = vlines, aes(xintercept = value, color = metricColor), linetype = "dashed") +
   ylim(yMin,yMax) +
   scale_x_time(limits = c(xMin, xMax),
-               breaks = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsInt], 
-               labels = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsDisp]) +
+               breaks = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsInt], 
+               labels = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsDisp]) +
   labs(title = paste(circuitName, "{frame_time}"),
        subtitle = "Lap Times Density Over Years") +
   xlab("Lap Time") +
@@ -91,8 +91,8 @@ spreadAnim <- ggplot(anaimateLapTimesData[seconds <= 180]) +
         axis.title.x = element_blank(),
         plot.title = element_text(size = 12)) +
   scale_y_time(limits = c(xMin, xMax),
-               breaks = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsInt], 
-               labels = secondsDisplay[secondsInt %% 15 == 0 & secondsInt >= 45, secondsDisp]) +
+               breaks = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsInt], 
+               labels = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsDisp]) +
   coord_flip() +
   transition_time(year) +
   enter_fade() +
