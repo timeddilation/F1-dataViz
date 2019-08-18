@@ -2,8 +2,7 @@
 evalCircuit_Id <- 17 # set the circuit ID to evaluate here!!!
 
 # only pull races that have lapTimes data
-racesWithTimes <- unique(lapTimes[, raceId])
-racesForCircuit <- races[circuitId == evalCircuit_Id][raceId %in% racesWithTimes][order(year)]
+racesForCircuit <- racesForCircuit <- circuitRacesWithLapTimes(evalCircuit_Id)
 # pull all lap times for races, and create a "seconds" column for the lap time
 allCircuitLapTimes <- lapTimes[raceId %in% racesForCircuit[, raceId]]
 # remove laps for drivers that had pit stops

@@ -15,6 +15,12 @@ watermrk <- readPNG(source = "images/watermark.png")
 watermark <- rasterGrob(watermrk, interpolate = TRUE)
 rm(watermrk)
 
+circuitRacesWithLapTimes <- function(evalCircuit_Id) {
+  racesWithTimes <- unique(lapTimes[, raceId])
+  racesForCircuit <- races[circuitId == evalCircuit_Id][raceId %in% racesWithTimes][order(year)]
+  return(racesForCircuit)
+}
+
 generateRaceDriverLaps <- function(raceIdEval) {
   raceLaps <- merge(lapTimes[raceId == raceIdEval], drivers[, .(driverId, surname)])
   raceLaps[, seconds := milliseconds / 1000]
