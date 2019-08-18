@@ -7,6 +7,9 @@
 ### It currently appears older races do not account for stops, and new races do account for stops
 ### If I new when this change in the database begins, I could write a tool to fix the data, however...
 ### The fix assumes that simply subtracting the pit duration from the lap time is an "accurate" lap time
+
+### There is another possiblilty that this is expected in the data, and that it differs from track to track
+### Moving forward, I think it is prudent to remove any laps for drivers where they pitted in future analysis
 library(data.table)
 
 lapTimes <<- fread("data/lap_times.csv")

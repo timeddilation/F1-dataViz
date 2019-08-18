@@ -6,9 +6,15 @@ racesWithTimes <- unique(lapTimes[, raceId])
 racesForCircuit <- races[circuitId == evalCircuit_Id][raceId %in% racesWithTimes][order(year)]
 # pull all lap times for races, and create a "seconds" column for the lap time
 allCircuitLapTimes <- lapTimes[raceId %in% racesForCircuit[, raceId]]
+# remove laps for drivers that had pit stops
+allCircuitLapTimes <- merge(allCircuitLapTimes, 
+                            pitStops[, .(raceId, driverId, lap, stopDuration = duration)],
+                            by = c("raceId", "driverId", "lap"), all.x = TRUE)
+allCircuitLapTimes <- allCircuitLapTimes[is.na(stopDuration)]
+allCircuitLapTimes$stopDuration <- NULL
 # limit lap times to those under 3 minutes, removes pit stop laps and exceedingly slow laps that might throw off intended resutls
 anaimateLapTimesData <- allCircuitLapTimes[seconds <= 180]
-anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year)])
+anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year)], by = "raceId")
 # retrieve race results for all races on circuit
 racesResults <- unique(races[raceId %in% unique(anaimateLapTimesData[, raceId]), .(raceId, year)])
 racesResults <- merge(racesResults, fastestLaps, by = "raceId")
