@@ -1,5 +1,5 @@
 ### animate that shit ###
-evalCircuit_Id <- 6 # set the circuit ID to evaluate here!!!
+evalCircuit_Id <- 17 # set the circuit ID to evaluate here!!!
 
 # only pull races that have lapTimes data
 racesWithTimes <- unique(lapTimes[, raceId])
@@ -20,7 +20,7 @@ racesResults <- unique(races[raceId %in% unique(anaimateLapTimesData[, raceId]),
 racesResults <- merge(racesResults, fastestLaps, by = "raceId")
 racesResults <- merge(racesResults, anaimateLapTimesData[, .(medianLapTime = median(seconds)), by = raceId], by = "raceId")
 # setup color gradients
-colorsGrab <- colorRampPalette(c("darkgreen","firebrick4"))
+colorsGrab <- colorRampPalette(c("darkgreen","firebrick4"), bias = 5)
 # add color gradient for fastest lap time
 fastestLapColors <- racesResults[, .(raceId, seconds)][order(seconds)]
 fastestLapColors[, colorGradient := colorsGrab(nrow(racesResults))]
@@ -32,8 +32,8 @@ racesResults <- merge(racesResults, medianLapColors[, .(raceId, medianColorGradi
 rm(colorsGrab, fastestLapColors, medianLapColors)
 # add race tooltip to display fastest lap
 racesResults[, raceToolTip := paste("<span style='font-size:16'>",
-                                    "**Fastest Lap:** <span style = 'color:", colorGradient, "'>", 
-                                    displayTime, "</span>",
+                                    "**Fastest Lap: <span style = 'color:", colorGradient, "'>", 
+                                    displayTime, "**</span>",
                                     # "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
                                     "</span>",
                                     sep = "")]
