@@ -101,15 +101,17 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
 
 # field spread (boxplot)
 spreadAnim <- ggplot(anaimateLapTimesData[seconds <= 180]) +
-  geom_tufteboxplot(aes(y = seconds, size = 5), show.legend = FALSE,
+  geom_tufteboxplot(aes(y = seconds, size = 5), show.legend = FALSE, color = "gray35",
                     median.type = "line", hoffset = 0, voffset = 0, width = 3, whisker.type = "point") +
+  geom_hline(data = vlines, aes(yintercept = value, color = metricColor), linetype = "dashed") +
   ylim(xMin,xMax) +
   theme_wsj() +
   labs(title = "Lap Times Spread") +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         axis.title.x = element_blank(),
-        plot.title = element_text(size = 12)) +
+        plot.title = element_text(size = 12),
+        legend.position = "none") +
   scale_y_time(limits = c(xMin, xMax),
                breaks = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsInt], 
                labels = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsDisp]) +
@@ -126,7 +128,7 @@ medianAnim <- ggplot(racesResults, aes(x = year, y = medianLapTime)) +
            label = "median", color = "red", hjust = 1, vjust = -0.2) +
   geom_hline(yintercept = median(allCircuitLapTimes[seconds <= 180, seconds]),
              linetype = "dashed", color = "red") +
-  geom_line() +
+  geom_line(color = "gray35") +
   geom_point(aes(group = seq_along(year))) +
   labs(title = "Median Lap Times") +
   ylab("Lap Time (seconds)") +
