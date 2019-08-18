@@ -19,8 +19,16 @@ anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year
 racesResults <- unique(races[raceId %in% unique(anaimateLapTimesData[, raceId]), .(raceId, year)])
 racesResults <- merge(racesResults, fastestLaps, by = "raceId")
 racesResults <- merge(racesResults, anaimateLapTimesData[, .(medianLapTime = median(seconds)), by = raceId], by = "raceId")
-racesResults[, raceToolTip := paste("<span style='font-size:16; color:black'>",
-                                    "**Fastest Lap:** ", displayTime, 
+# add color gradient for fastest lap time
+colorsGrab <- colorRampPalette(c("darkgreen","firebrick4"))
+fastestLapColors <- racesResults[, .(raceId, seconds)][order(seconds)]
+fastestLapColors[, colorGradient := colorsGrab(nrow(racesResults))]
+racesResults <- merge(racesResults, fastestLapColors[, .(raceId, colorGradient)], by = "raceId")
+rm(colorsGrab, fastestLapColors)
+# add race tooltip to display fastest lap
+racesResults[, raceToolTip := paste("<span style='font-size:16'>",
+                                    "**Fastest Lap:** <span style = 'color:", colorGradient, "'>", 
+                                    displayTime, "</span>",
                                     # "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
                                     "</span>",
                                     sep = "")]
