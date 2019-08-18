@@ -39,7 +39,7 @@ This is done because I currently only read PNG files, and have not prepared the 
 This metric is designed to analyze lap times for a single circuit, and visualize how lap times change over time. 
 Laps for a race where the driver pitted are removed, in order to only evaluate "race laps".
 
-![](https://i.imgur.com/C6dgE1Z.gif) https://i.imgur.com/C6dgE1Z.gif
+![](images/exmaples/lapTimeDensity_Monaco.gif)
 
 This script outputs 3 separate animations. 
 The final graphic is a composite of all 3. 
