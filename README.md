@@ -1,3 +1,5 @@
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AS69FWTKL5NTL&item_name=Make+more+cool+stuff.&currency_code=USD&source=url)
+
 Various data visualizations of F1 race data.
 
 Data sourced from: http://ergast.com/mrd/
@@ -51,3 +53,5 @@ And the third (bottom right) is simply a line graph of the median lap times.
 There is a separate shell script in the "gifFiles" directory to join the 3 animations together. 
 The shell script relies on imagemagick to perform the joining, and therefore must be installed if you with to join the gifs together. 
 Otherwise, the R script does what it's intended to do, which is output 3 separate gifs.
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AS69FWTKL5NTL&item_name=Make+more+cool+stuff.&currency_code=USD&source=url)
