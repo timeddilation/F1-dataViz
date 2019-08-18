@@ -19,12 +19,17 @@ anaimateLapTimesData <- merge(anaimateLapTimesData, races[, .(raceId, name, year
 racesResults <- unique(races[raceId %in% unique(anaimateLapTimesData[, raceId]), .(raceId, year)])
 racesResults <- merge(racesResults, fastestLaps, by = "raceId")
 racesResults <- merge(racesResults, anaimateLapTimesData[, .(medianLapTime = median(seconds)), by = raceId], by = "raceId")
-# add color gradient for fastest lap time
+# setup color gradients
 colorsGrab <- colorRampPalette(c("darkgreen","firebrick4"))
+# add color gradient for fastest lap time
 fastestLapColors <- racesResults[, .(raceId, seconds)][order(seconds)]
 fastestLapColors[, colorGradient := colorsGrab(nrow(racesResults))]
 racesResults <- merge(racesResults, fastestLapColors[, .(raceId, colorGradient)], by = "raceId")
-rm(colorsGrab, fastestLapColors)
+# add color gradient for median lap time
+medianLapColors <- racesResults[, .(raceId, medianLapTime)][order(medianLapTime)]
+medianLapColors[, medianColorGradient := colorsGrab(nrow(racesResults))]
+racesResults <- merge(racesResults, medianLapColors[, .(raceId, medianColorGradient)], by = "raceId")
+rm(colorsGrab, fastestLapColors, medianLapColors)
 # add race tooltip to display fastest lap
 racesResults[, raceToolTip := paste("<span style='font-size:16'>",
                                     "**Fastest Lap:** <span style = 'color:", colorGradient, "'>", 
@@ -117,6 +122,10 @@ spreadAnim <- ggplot(anaimateLapTimesData[seconds <= 180]) +
 
 # median lap time (line)
 medianAnim <- ggplot(racesResults, aes(x = year, y = medianLapTime)) +
+  annotate("text", x = max(racesResults[, year]), y = median(allCircuitLapTimes[seconds <= 180, seconds]),
+           label = "median", color = "red", hjust = 1, vjust = -0.2) +
+  geom_hline(yintercept = median(allCircuitLapTimes[seconds <= 180, seconds]),
+             linetype = "dashed", color = "red") +
   geom_line() +
   geom_point(aes(group = seq_along(year))) +
   labs(title = "Median Lap Times") +
