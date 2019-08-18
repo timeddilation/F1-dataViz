@@ -40,15 +40,16 @@ medianMax <- ceiling(max(racesResults[, medianLapTime]))
 medianMax <- medianMax + (5 - medianMax %% 5)
 medianBreaks <- secondsDisplay[secondsInt %% 15 == 0][secondsInt >= medianMin & secondsInt <= medianMax]
 # boxplot stats for static reference lines
+colorsGrab <- colorRampPalette(c("darkgreen","firebrick4"))
 circuitBoxPlotStats <- boxplot.stats(anaimateLapTimesData[, seconds])
 vlines <- data.table(metric = c("Q1", "Q2", "Median", "Q3", "Q4"),
                      value = circuitBoxPlotStats$stats[1:5],
-                     metricColor = c("darkgreen", "blue", "brown2", "blue", "darkgreen"))
+                     metricColor = colorsGrab(5))
 
 circuitName <- circuits[circuitId == evalCircuit_Id, name]
 circuitImg <- getTrackImage(evalCircuit_Id, 0.2)
 trackWorldMap <- generateCircuitWorldMap(evalCircuit_Id)
-rm(circuitBoxPlotStats, evalCircuit_Id, racesForCircuit, racesWithTimes)
+rm(circuitBoxPlotStats, evalCircuit_Id, racesForCircuit, racesWithTimes, colorsGrab)
 
 ### define plot size
 xMin <- 45
