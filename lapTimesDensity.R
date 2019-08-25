@@ -53,7 +53,7 @@ vlines <- data.table(metric = c("Q1", "Q2", "Median", "Q3", "Q4"),
 circuitName <- circuits[circuitId == evalCircuit_Id, name]
 circuitImg <- getTrackImage(evalCircuit_Id, 0.2)
 trackWorldMap <- generateCircuitWorldMap(evalCircuit_Id)
-rm(circuitBoxPlotStats, evalCircuit_Id, racesForCircuit, racesWithTimes, colorsGrab)
+rm(circuitBoxPlotStats, evalCircuit_Id, racesForCircuit, colorsGrab)
 
 ### define plot size
 xMin <- 45
