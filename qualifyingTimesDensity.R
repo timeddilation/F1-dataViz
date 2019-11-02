@@ -19,23 +19,31 @@ allQualifyingTimes <- rbind(q1times, q2times, q3times)
 animateQualifyingTimes <- merge(allQualifyingTimes, races[, .(raceId, name, year)], by = "raceId")
 rm(q1times, q2times, q3times)
 # get fastest qualifyig run for a given year
-fastestQualifyingRuns <- animateQualifyingTimes[, .(fastestRun = min(qualifyingTime)), by = year]
-fastestQualifyingRuns[, fastestRunDisplay := convertSecondsToDisplayTime(fastestRun)]
+qualifyingRunResults <- animateQualifyingTimes[, .(fastestRun = min(qualifyingTime),
+                                                   medianTime = median(qualifyingTime)), by = year]
+qualifyingRunResults[, fastestRunDisplay := convertSecondsToDisplayTime(fastestRun)]
 # setup color gradients
 colorsGrab <- colorRampPalette(c("darkgreen","firebrick4"), bias = 5)
 # add color gradient for fastest lap time
-fastestQualifyingRunColors <- fastestQualifyingRuns[, .(year, fastestRun)][order(fastestRun)]
+fastestQualifyingRunColors <- qualifyingRunResults[, .(year, fastestRun)][order(fastestRun)]
 fastestQualifyingRunColors[, colorGradient := colorsGrab(nrow(fastestQualifyingRunColors))]
-fastestQualifyingRuns <- merge(fastestQualifyingRuns, 
+qualifyingRunResults <- merge(qualifyingRunResults, 
                                fastestQualifyingRunColors[, .(year, colorGradient)],
                                by = "year")
 # add race tooltip to display fastest lap
-fastestQualifyingRuns[, toolTip := paste("<span style='font-size:16'>",
+qualifyingRunResults[, toolTip := paste("<span style='font-size:16'>",
                                          "**Fastest Run: <span style = 'color:", colorGradient, "'>", 
                                          fastestRunDisplay, "**</span>",
                                          "</span>",
                                          sep = "")]
 
+# generate the breaks for the median lap times metric
+# min/max should be in increments of 5, breaks/labels should be in increments of 15
+medianMin <- floor(min(qualifyingRunResults[, medianTime]))
+medianMin <- medianMin - medianMin %% 5
+medianMax <- ceiling(max(qualifyingRunResults[, medianTime]))
+medianMax <- medianMax + (5 - medianMax %% 5)
+medianBreaks <- secondsDisplay[secondsInt %% 15 == 0][secondsInt >= medianMin & secondsInt <= medianMax]
 
 # boxplot stats for static reference lines
 colorsGrab <- colorRampPalette(c("darkgreen","firebrick4"))
@@ -81,7 +89,7 @@ denAnim <- ggplot(animateQualifyingTimes, aes(x = qualifyingTime)) +
   # watermark, track image, and fastest lap/speed
   annotation_custom(circuitImg, xmin = 150, xmax = 190, ymin = 0.12, ymax = 0.3) +
   annotate(geom = "text", x = 170, y = 0.015, size = 5, label = "github.com/timeddilation") +
-  geom_rich_text(data = fastestQualifyingRuns[, .(year, toolTip)], aes(x = 150, y = 0.31, label = toolTip),
+  geom_rich_text(data = qualifyingRunResults[, .(year, toolTip)], aes(x = 150, y = 0.31, label = toolTip),
                  fill = NA, label.color = NA, hjust = 0, family = "mono") +
   # gganime stuff
   transition_time(year) +
@@ -91,3 +99,62 @@ denAnim <- ggplot(animateQualifyingTimes, aes(x = qualifyingTime)) +
 
 # animate(denAnim, width = 960, height = 440)
 
+spreadAnim <- ggplot(animateQualifyingTimes) +
+  geom_tufteboxplot(aes(y = qualifyingTime, size = 5), show.legend = FALSE, color = "gray35",
+                    median.type = "line", hoffset = 0, voffset = 0, width = 3, whisker.type = "point") +
+  geom_hline(data = vlines, aes(yintercept = value, color = metricColor), linetype = "dashed") +
+  ylim(xMin,xMax) +
+  theme_wsj() +
+  labs(title = "Qualifying Times Spread") +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_blank(),
+        plot.title = element_text(size = 12),
+        legend.position = "none") +
+  scale_y_time(limits = c(xMin, xMax),
+               breaks = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsInt], 
+               labels = secondsDisplay[secondsInt %% 5 == 0 & secondsInt >= 45, secondsDisp]) +
+  coord_flip() +
+  transition_time(year) +
+  enter_fade() +
+  exit_shrink() +
+  ease_aes('sine-in-out')
+# animate(spreadAnim, height = 100, width = 480)
+
+medianAnim <- ggplot(qualifyingRunResults, aes(x = year, y = medianTime)) +
+  geom_line(color = "gray35") +
+  geom_point(aes(group = seq_along(year))) +
+  labs(title = "Median Qualifying Times") +
+  ylab("Qualifying Time (seconds)") +
+  theme_wsj() +
+  theme(plot.title = element_text(size = 12),
+        axis.title.x = element_blank()) +
+  scale_y_time(limits = c(medianMin, medianMax), 
+               breaks = medianBreaks[, secondsInt],
+               labels = medianBreaks[, secondsDisp]) +
+  transition_reveal(year) +
+  enter_fade() +
+  exit_shrink() +
+  ease_aes('sine-in-out')
+# animate(medianAnim, height = 100, width = 480)
+
+# setup some params to generate the final gif
+gps <- length(unique(animateQualifyingTimes[, raceId]))
+framesPerGp <- 16
+totalFrames <- (gps * framesPerGp) + 15
+
+denAnimGif <- animate(denAnim, start_pause = 5, end_pause = 10, nframes = totalFrames, 
+                      detail = 4, width = 960, height = 440)
+spreadAnimGif <- animate(spreadAnim, start_pause = 5, end_pause = 10, nframes = totalFrames, 
+                         detail = 4, width = 480, height = 100)
+medianAnimGif <- animate(medianAnim, start_pause = 5, end_pause = 10, nframes = totalFrames, 
+                         detail = 4, width = 480, height = 100)
+
+anim_save("gifFiles/density.gif", denAnimGif)
+anim_save("gifFiles/spread.gif", spreadAnimGif)
+anim_save("gifFiles/median.gif", medianAnimGif)
+
+rm(gps, framesPerGp, allQualifyingTimes, animateQualifyingTimes, vlines, circuitName, 
+   qualifyingRunResults, circuitImg, totalFrames, xMin, xMax, yMin, yMax,
+   medianMin, medianMax, medianBreaks)
+rm(denAnim, spreadAnim, medianAnim)
