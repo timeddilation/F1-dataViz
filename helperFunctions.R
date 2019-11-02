@@ -144,50 +144,19 @@ generateCircuitWorldMap <- function(circuit_Id){
   return(returnImage)
 }
 
-loadF1Data <- function(){
-  circuits <<- fread("data/circuits.csv")
-  names(circuits) <<- c("circuitId","circuitRef","name","location","country","lat","lng","alt","url")
-  
-  drivers <<- fread("data/driver.csv")
-  names(drivers) <<- c("driverId","driverRef","number","code","forename","surname","dob","nationality","url")
-  
-  lapTimes <<- fread("data/lap_times.csv")
-  names(lapTimes) <<- c("raceId","driverId","lap","position","time","milliseconds")
-  
-  races <<- fread("data/races.csv")
-  names(races) <<- c("raceId","year","round","circuitId","name","date","url")
-  
-  results <<- fread("data/results.csv")
-  names(results) <<- c("resultId","raceId","driverId","constructorId","number","grid","position","positionText","positionOrder","points","laps","time","milliseconds","fastestLap","rank","fastestLapTime","fastestLapSpeed","statusId")
-  
-  pitStops <<- fread("data/pit_stops.csv")
-  names(pitStops) <<- c("raceId","driverId","stop","lap","time","duration","milliseconds")
-  
-  statuses <<- fread("data/status.csv")
-  names(statuses) <<- c("statusId", "status")
-  
-  ### milliseconds displayed as seconds makes lubridate functions easier
-  lapTimes[, seconds := milliseconds / 1000]
-  
-  ### create new table for fastest laps, because some of these are missing from core data
-  ### note: this throws warning: "In eval(jsub, SDenv, parent.frame()) : NAs introduced by coercion"
-  ### but it's fine, it's just a warning, intended behavior here.
-  racesWithTimes <- unique(lapTimes[, raceId])
-  raceSpeeds <- results[raceId %in% racesWithTimes][, fastestLapSpeed := as.numeric(fastestLapSpeed)]
-  raceSpeeds <- raceSpeeds[!is.na(fastestLapSpeed), .(highestSpeed = max(fastestLapSpeed)), by = raceId]
-  
-  fastestLaps <<- lapTimes[, .(milliseconds = min(milliseconds)), by = raceId]
-  fastestLaps[, seconds := milliseconds / 1000]
-  for (i in 1:nrow(fastestLaps)) {
-    fastestLaps[i, displayTime := convertSecondsToDisplayTime(seconds)]
-  }
-  fastestLaps[, fastestLapSpeed := as.numeric()]
-  for (i in raceSpeeds[, raceId]) {
-    speedVal <- raceSpeeds[raceId == i, highestSpeed]
-    fastestLaps[raceId == i, fastestLapSpeed := speedVal]
-  }
-  fastestLaps[, fastestLapSpeed := sprintf("%.3f", round(fastestLapSpeed,3))]
-  fastestLaps[is.na(fastestLapSpeed), fastestLapSpeed := "No Data"]
+secondsDisplay <- data.table(
+  secondsInt = seq(from = 30, to = 180, by = 5),
+  secondsDisp = c("00:30","","","00:45","","","01:00","","","01:15","","",
+                  "01:30","","","01:45","","","02:00","","","02:15","","",
+                  "02:30","","","02:45","","","03:00")
+)
+
+###########################
+### Load and clean data ###
+###########################
+loadCircuitData <- function(){
+  circuits <- fread("data/circuits.csv")
+  names(circuits) <- c("circuitId","circuitRef","name","location","country","lat","lng","alt","url")
   
   ### fix circuit names
   circuits[circuitId == 18, name := "Autódromo José Carlos Pace"]
@@ -216,14 +185,71 @@ loadF1Data <- function(){
   circuits[circuitId == 21, imageSource := "images/tracks/Imola1995.png"]
   circuits[circuitId == 22, imageSource := "images/tracks/SuzukaCircuit2005.png"]
   circuits[circuitId == 24, imageSource := "images/tracks/Circuit_Yas-Island.png"]
-  circuits[circuitId == 69, imageSource := "images/tracks/CircuitOfAmericas.png"]
+  
+  return(circuits)
+}
+
+loadQualifyingData <- function(){
+  qualifiers <- fread("data/qualifying.csv")
+  names(qualifiers) <- c("qualifyId","raceId","driverId","constructorId","number","position","q1","q2","q3")
+  
+  ### set times whose value is "\N" from data to NA (null)
+  qualifiers <- qualifiers[, lapply(.SD, function(x) replace(x, which(x == "\\N"), NA))]
+  ### convert lap times to seconds
+  qualifiers[!is.na(q1), q1sec := convertLapTimeStringToSeconds(q1)]
+  qualifiers[!is.na(q2), q2sec := convertLapTimeStringToSeconds(q2)]
+  qualifiers[!is.na(q3), q3sec := convertLapTimeStringToSeconds(q3)]
+  
+  return(qualifiers)
+}
+
+loadF1Data <- function(){
+  
+  circuits <<- loadCircuitData()
+  
+  drivers <<- fread("data/driver.csv")
+  names(drivers) <<- c("driverId","driverRef","number","code","forename","surname","dob","nationality","url")
+  
+  lapTimes <<- fread("data/lap_times.csv")
+  names(lapTimes) <<- c("raceId","driverId","lap","position","time","milliseconds")
+  
+  races <<- fread("data/races.csv")
+  names(races) <<- c("raceId","year","round","circuitId","name","date","url")
+  
+  results <<- fread("data/results.csv")
+  names(results) <<- c("resultId","raceId","driverId","constructorId","number","grid","position","positionText","positionOrder","points","laps","time","milliseconds","fastestLap","rank","fastestLapTime","fastestLapSpeed","statusId")
+  
+  pitStops <<- fread("data/pit_stops.csv")
+  names(pitStops) <<- c("raceId","driverId","stop","lap","time","duration","milliseconds")
+  
+  statuses <<- fread("data/status.csv")
+  names(statuses) <<- c("statusId", "status")
+  
+  qualifiers <<- loadQualifyingData()
+  
+  ### milliseconds displayed as seconds makes lubridate functions easier
+  lapTimes[, seconds := milliseconds / 1000]
+  
+  ### create new table for fastest laps, because some of these are missing from core data
+  ### note: this throws warning: "In eval(jsub, SDenv, parent.frame()) : NAs introduced by coercion"
+  ### but it's fine, it's just a warning, intended behavior here.
+  racesWithTimes <- unique(lapTimes[, raceId])
+  raceSpeeds <- results[raceId %in% racesWithTimes][, fastestLapSpeed := as.numeric(fastestLapSpeed)]
+  raceSpeeds <- raceSpeeds[!is.na(fastestLapSpeed), .(highestSpeed = max(fastestLapSpeed)), by = raceId]
+  
+  fastestLaps <<- lapTimes[, .(milliseconds = min(milliseconds)), by = raceId]
+  fastestLaps[, seconds := milliseconds / 1000]
+  for (i in 1:nrow(fastestLaps)) {
+    fastestLaps[i, displayTime := convertSecondsToDisplayTime(seconds)]
+  }
+  fastestLaps[, fastestLapSpeed := as.numeric()]
+  for (i in raceSpeeds[, raceId]) {
+    speedVal <- raceSpeeds[raceId == i, highestSpeed]
+    fastestLaps[raceId == i, fastestLapSpeed := speedVal]
+  }
+  fastestLaps[, fastestLapSpeed := sprintf("%.3f", round(fastestLapSpeed,3))]
+  fastestLaps[is.na(fastestLapSpeed), fastestLapSpeed := "No Data"]
+  
 }
 
 loadF1Data()
-
-secondsDisplay <- data.table(
-  secondsInt = seq(from = 30, to = 180, by = 5),
-  secondsDisp = c("00:30","","","00:45","","","01:00","","","01:15","","",
-                  "01:30","","","01:45","","","02:00","","","02:15","","",
-                  "02:30","","","02:45","","","03:00")
-)
