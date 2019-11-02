@@ -1,5 +1,7 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AS69FWTKL5NTL&item_name=Make+more+cool+stuff.&currency_code=USD&source=url)
 
+Bitcoin Donations: 1DGR8GSGn5fNUPjYksXMeYJEgF7kxkgCw4
+
 Various data visualizations of F1 race data.
 
 Data sourced from: http://ergast.com/mrd/
@@ -35,11 +37,11 @@ It outputs a raster grob object of the track found on the wikipedia page for the
 It currently relies on the PNG images stored locally in the repository as opposed to GET-ing them directly from the wiki. 
 This is done because I currently only read PNG files, and have not prepared the project to dynamically read other image types. 
 
-`australiaCircuitImage <- getTrackImage(circuit_Id = 1, transparencyVal = 0.2`
+`australiaCircuitImage <- getTrackImage(circuit_Id = 1, transparencyVal = 0.2)`
 
 ## Lap Times Density
 This metric is designed to analyze lap times for a single circuit, and visualize how lap times change over time. 
-Laps for a race where the driver pitted are removed, in order to only evaluate "race laps".
+Laps for a race where the driver pitted, and the outlap after, are removed in order to only evaluate "race laps".
 
 ![](lapTimeDensity_Monaco.gif)
 
@@ -53,5 +55,8 @@ And the third (bottom right) is simply a line graph of the median lap times.
 There is a separate shell script in the "gifFiles" directory to join the 3 animations together. 
 The shell script relies on imagemagick to perform the joining, and therefore must be installed if you want to join the gifs together. 
 Otherwise, the R script does what it's intended to do, which is output 3 separate gifs.
+
+## Qualifying Times Density
+Same as Lap Times Density, but uses qualifying times data instead of race lap times data.
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AS69FWTKL5NTL&item_name=Make+more+cool+stuff.&currency_code=USD&source=url)
