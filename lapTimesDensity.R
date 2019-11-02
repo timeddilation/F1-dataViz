@@ -5,11 +5,16 @@ evalCircuit_Id <- 69 # set the circuit ID to evaluate here!!!
 racesForCircuit <- racesForCircuit <- circuitRacesWithLapTimes(evalCircuit_Id)
 # pull all lap times for races, and create a "seconds" column for the lap time
 allCircuitLapTimes <- lapTimes[raceId %in% racesForCircuit[, raceId]]
-# remove laps for drivers that had pit stops
+# remove laps for drivers that had pit stops, and the outlaps after the pit stops
 allCircuitLapTimes <- merge(allCircuitLapTimes, 
                             pitStops[, .(raceId, driverId, lap, stopDuration = duration)],
                             by = c("raceId", "driverId", "lap"), all.x = TRUE)
-allCircuitLapTimes <- allCircuitLapTimes[is.na(stopDuration)]
+outlaps <- copy(allCircuitLapTimes[!is.na(stopDuration)])
+outlaps <- outlaps[, lap := lap + 1][, .(raceId, driverId, lap, outlap = TRUE)]
+allCircuitLapTimes <- merge(allCircuitLapTimes, outlaps, 
+                            by = c("raceId", "driverId", "lap"), 
+                            all.x = TRUE)
+allCircuitLapTimes <- allCircuitLapTimes[is.na(stopDuration)][is.na(outlap)]
 allCircuitLapTimes$stopDuration <- NULL
 # limit lap times to those under 3 minutes, removes pit stop laps and exceedingly slow laps that might throw off intended resutls
 anaimateLapTimesData <- allCircuitLapTimes[seconds <= 180]
@@ -28,7 +33,7 @@ racesResults <- merge(racesResults, fastestLapColors[, .(raceId, colorGradient)]
 medianLapColors <- racesResults[, .(raceId, medianLapTime)][order(medianLapTime)]
 medianLapColors[, medianColorGradient := colorsGrab(nrow(racesResults))]
 racesResults <- merge(racesResults, medianLapColors[, .(raceId, medianColorGradient)], by = "raceId")
-rm(colorsGrab, fastestLapColors, medianLapColors)
+rm(colorsGrab, fastestLapColors, medianLapColors, outlaps)
 # add race tooltip to display fastest lap
 racesResults[, raceToolTip := paste("<span style='font-size:16'>",
                                     "**Fastest Lap: <span style = 'color:", colorGradient, "'>", 
