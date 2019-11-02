@@ -216,6 +216,7 @@ loadF1Data <- function(){
   circuits[circuitId == 21, imageSource := "images/tracks/Imola1995.png"]
   circuits[circuitId == 22, imageSource := "images/tracks/SuzukaCircuit2005.png"]
   circuits[circuitId == 24, imageSource := "images/tracks/Circuit_Yas-Island.png"]
+  circuits[circuitId == 69, imageSource := "images/tracks/CircuitOfAmericas.png"]
 }
 
 loadF1Data()

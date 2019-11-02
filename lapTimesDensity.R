@@ -1,5 +1,5 @@
 ### animate that shit ###
-evalCircuit_Id <- 17 # set the circuit ID to evaluate here!!!
+evalCircuit_Id <- 69 # set the circuit ID to evaluate here!!!
 
 # only pull races that have lapTimes data
 racesForCircuit <- racesForCircuit <- circuitRacesWithLapTimes(evalCircuit_Id)
@@ -51,8 +51,8 @@ vlines <- data.table(metric = c("Q1", "Q2", "Median", "Q3", "Q4"),
                      metricColor = colorsGrab(5))
 
 circuitName <- circuits[circuitId == evalCircuit_Id, name]
-circuitImg <- getTrackImage(evalCircuit_Id, 0.2)
-trackWorldMap <- generateCircuitWorldMap(evalCircuit_Id)
+circuitImg <- getTrackImage(evalCircuit_Id, 0.5)
+# trackWorldMap <- generateCircuitWorldMap(evalCircuit_Id)
 rm(circuitBoxPlotStats, evalCircuit_Id, racesForCircuit, colorsGrab)
 
 ### define plot size
@@ -62,7 +62,6 @@ yMin <- 0
 yMax <- 0.35
 # density large plot
 denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) + 
-  annotation_custom(trackWorldMap, xmin = 35, xmax = 75, ymin = 0.22, ymax = 0.4) +
   geom_density(data = allCircuitLapTimes[seconds <= 180], adjust = 4,
                aes(x = seconds, color = "gray50", fill = "gray70", alpha = 0.5)) +
   geom_density(aes(color = "red2", fill = "red2", alpha = 0.5),
@@ -87,8 +86,8 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
         legend.text = element_text(size = 14, family = "mono"),
         axis.title=element_text(size=12)) +
   # watermark, track image, and fastest lap/speed
-  annotation_custom(circuitImg, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf) +
-  annotate(geom = "text", x = 165, y = 0.015, size = 5, label = "github.com/timeddilation") +
+  annotation_custom(circuitImg, xmin = 150, xmax = 190, ymin = 0.12, ymax = 0.3) +
+  annotate(geom = "text", x = 170, y = 0.015, size = 5, label = "github.com/timeddilation") +
   geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.31, label = raceToolTip),
                  fill = NA, label.color = NA, hjust = 0, family = "mono") +
   # gganimmate stuff
@@ -160,6 +159,6 @@ anim_save("gifFiles/spread.gif", spreadAnimGif)
 anim_save("gifFiles/median.gif", medianAnimGif)
 
 rm(gps, framesPerGp, allCircuitLapTimes, anaimateLapTimesData, vlines, circuitName, 
-   racesResults, circuitImg, trackWorldMap, totalFrames, xMin, xMax, yMin, yMax,
+   racesResults, circuitImg, totalFrames, xMin, xMax, yMin, yMax,
    medianMin, medianMax, medianBreaks)
 rm(denAnim, spreadAnim, medianAnim)
