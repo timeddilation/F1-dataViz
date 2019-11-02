@@ -20,13 +20,23 @@ Then you can run any other script.
 
 # Updating the Data
 
-Download the most recent data from the data source, and replace all existing files in the "data" direcory with the new CSVs.
+Download the most recent data from the data source, and replace all existing files in the "data" directory with the new CSVs.
 
 # Visuals
 
 A few functions are present to generate aesthetics for the plots. 
+
+## Planned features
+
+* Race weather indicators
+** Rain or shine
+** Air and track temperature
+* F1 rule set
+** Engine type(s) allowed
+** Refueling allowed indicator
+
 ## Word Map generator
-This function will generate a map of the world, with a target over the geocoordinates of the circuit. 
+This function will generate a map of the world, with a target over the geo-coordinates of the circuit. 
 It outputs a raster grob object of the map to annotate a viz with. 
 
 `australiaCircuitWorldMap <- generateCircuitWorldMap(circuit_Id = 1)`
@@ -41,7 +51,7 @@ This is done because I currently only read PNG files, and have not prepared the 
 
 ## Lap Times Density
 This metric is designed to analyze lap times for a single circuit, and visualize how lap times change over time. 
-Laps for a race where the driver pitted, and the outlap after, are removed in order to only evaluate "race laps".
+Laps for a race where the driver pitted, and the out lap after, are removed in order to only evaluate "race laps".
 
 ![](lapTimeDensity_Monaco.gif)
 
