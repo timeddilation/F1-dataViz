@@ -2,7 +2,7 @@
 evalCircuit_Id <- 69 # set the circuit ID to evaluate here!!!
 
 # only pull races that have lapTimes data
-racesForCircuit <- racesForCircuit <- circuitRacesWithLapTimes(evalCircuit_Id)
+racesForCircuit <- circuitRacesWithLapTimes(evalCircuit_Id)
 # pull all lap times for races, and create a "seconds" column for the lap time
 allCircuitLapTimes <- lapTimes[raceId %in% racesForCircuit[, raceId]]
 # remove laps for drivers that had pit stops, and the outlaps after the pit stops

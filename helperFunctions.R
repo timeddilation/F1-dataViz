@@ -215,7 +215,7 @@ loadF1Data <- function(){
   names(lapTimes) <<- c("raceId","driverId","lap","position","time","milliseconds")
   
   races <<- fread("data/races.csv")
-  names(races) <<- c("raceId","year","round","circuitId","name","date","url")
+  names(races) <<- c("raceId","year","round","circuitId","name","date","time","url")
   
   results <<- fread("data/results.csv")
   names(results) <<- c("resultId","raceId","driverId","constructorId","number","grid","position","positionText","positionOrder","points","laps","time","milliseconds","fastestLap","rank","fastestLapTime","fastestLapSpeed","statusId")
