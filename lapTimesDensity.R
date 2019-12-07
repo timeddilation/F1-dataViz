@@ -1,5 +1,5 @@
 ### animate that shit ###
-evalCircuit_Id <- 69 # set the circuit ID to evaluate here!!!
+evalCircuit_Id <- 24 # set the circuit ID to evaluate here!!!
 
 # only pull races that have lapTimes data
 racesForCircuit <- circuitRacesWithLapTimes(evalCircuit_Id)
@@ -166,4 +166,4 @@ anim_save("gifFiles/median.gif", medianAnimGif)
 rm(gps, framesPerGp, allCircuitLapTimes, anaimateLapTimesData, vlines, circuitName, 
    racesResults, circuitImg, totalFrames, xMin, xMax, yMin, yMax,
    medianMin, medianMax, medianBreaks)
-rm(denAnim, spreadAnim, medianAnim)
+rm(denAnim, spreadAnim, medianAnim, denAnimGif, spreadAnimGif, medianAnimGif)
