@@ -1,5 +1,5 @@
 ### animate that shit ###
-evalCircuit_Id <- 24 # set the circuit ID to evaluate here!!!
+evalCircuit_Id <- 21 # set the circuit ID to evaluate here!!!
 
 # only pull races that have lapTimes data
 racesForCircuit <- circuitRacesWithLapTimes(evalCircuit_Id)
@@ -35,7 +35,7 @@ medianLapColors[, medianColorGradient := colorsGrab(nrow(racesResults))]
 racesResults <- merge(racesResults, medianLapColors[, .(raceId, medianColorGradient)], by = "raceId")
 rm(colorsGrab, fastestLapColors, medianLapColors, outlaps)
 # add race tooltip to display fastest lap
-racesResults[, raceToolTip := paste("<span style='font-size:16'>",
+racesResults[, raceToolTip := paste("<span style='font-size:22px'>",
                                     "**Fastest Lap: <span style = 'color:", colorGradient, "'>", 
                                     displayTime, "**</span>",
                                     # "<br>**Fastest Lap Speed:** ", as.character(fastestLapSpeed),
@@ -93,7 +93,7 @@ denAnim <- ggplot(anaimateLapTimesData, aes(x = seconds)) +
   # watermark, track image, and fastest lap/speed
   annotation_custom(circuitImg, xmin = 150, xmax = 190, ymin = 0.12, ymax = 0.3) +
   annotate(geom = "text", x = 170, y = 0.015, size = 5, label = "github.com/timeddilation") +
-  geom_rich_text(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.31, label = raceToolTip),
+  geom_richtext(data = racesResults[, .(year, raceToolTip)], aes(x = 150, y = 0.31, label = raceToolTip),
                  fill = NA, label.color = NA, hjust = 0, family = "mono") +
   # gganimmate stuff
   transition_time(year) +

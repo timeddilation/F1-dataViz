@@ -1,5 +1,3 @@
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AS69FWTKL5NTL&item_name=Make+more+cool+stuff.&currency_code=USD&source=url)
-
 Bitcoin Donations: 1DGR8GSGn5fNUPjYksXMeYJEgF7kxkgCw4
 
 Various data visualizations of F1 race data.
@@ -12,7 +10,10 @@ Data sourced from: http://ergast.com/mrd/
 * Requires RStudio https://www.rstudio.com/
 * Requires Rtools (will be prompted to install this later)
 * Requires imagemagick be installed: https://imagemagick.org/script/download.php
-** This does not work on windows unless you use a bash emu. I recommend cmder: https://cmder.net/
+  * This does not work on windows unless you use a bash emu. I recommend cmder: https://cmder.net/
+* Certain R packages used in this project have other dependencies. Especially if you are running on linux, you must make sure you have these dependencies installed on your own.
+  * Notably, gganimate, gifski, and transformr packages tend to be the most problematic in terms of dependencies for linux distros.
+  * Simply try to install the package, read the error message and it will tell you what is missing.
 * Start by running libsSetup.R to get the packages installed used by these scripts.
 * Then run the helperFunctions.R to load in the data and add functions used to assist some metrics.
 
@@ -29,11 +30,11 @@ A few functions are present to generate aesthetics for the plots.
 ## Planned features
 
 * Race weather indicators
-** Rain or shine
-** Air and track temperature
+  * Rain or shine
+  * Air and track temperature
 * F1 rule set
-** Engine type(s) allowed
-** Refueling allowed indicator
+  * Engine type(s) allowed
+  * Refueling allowed indicator
 
 ## Word Map generator
 This function will generate a map of the world, with a target over the geo-coordinates of the circuit. 
@@ -69,4 +70,4 @@ Otherwise, the R script does what it's intended to do, which is output 3 separat
 ## Qualifying Times Density
 Same as Lap Times Density, but uses qualifying times data instead of race lap times data.
 
-[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AS69FWTKL5NTL&item_name=Make+more+cool+stuff.&currency_code=USD&source=url)
+Bitcoin Donations: 1DGR8GSGn5fNUPjYksXMeYJEgF7kxkgCw4
